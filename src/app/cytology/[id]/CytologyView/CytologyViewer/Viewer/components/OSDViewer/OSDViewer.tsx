@@ -63,18 +63,18 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
 
                                         // Для запроса информации по снимку (DZI XML) - без /files
                                         // Для запросов тайлов (картинок) - с /files
-                                        // Используем кастомный tileSource для правильной обработки
+                                        // Используем правильный формат для DZI tileSource
                                         const xmlUrl = `${baseUrl}/${tilerBasePath}`;
+                                        const tilesBaseUrl = `${baseUrl}/${tilerBasePath}/files`;
 
+                                        // OpenSeadragon для DZI ожидает объект с определенной структурой
+                                        // Используем правильный формат для кастомного DZI с путем к тайлам
                                         return {
                                             type: "dzi",
                                             url: xmlUrl,
-                                            // Переопределяем путь к тайлам, добавляя /files
-                                            // OpenSeadragon будет использовать этот формат для тайлов
-                                            tileUrl: (level: number, x: number, y: number) => {
-                                                // Для тайлов добавляем /files
-                                                return `${baseUrl}/${tilerBasePath}/files/${level}/${x}_${y}.jpeg`;
-                                            },
+                                            // Указываем базовый URL для тайлов
+                                            // OpenSeadragon будет формировать путь как: {tilesBaseUrl}/{level}/{x}_{y}.jpeg
+                                            tileUrl: tilesBaseUrl,
                                         };
                                     }
                                 }
