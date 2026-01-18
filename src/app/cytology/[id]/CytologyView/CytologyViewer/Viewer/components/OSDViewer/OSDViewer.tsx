@@ -65,7 +65,7 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
                                         // Для запросов тайлов (картинок) - с /files
                                         // Используем кастомный tileSource для правильной обработки
                                         const xmlUrl = `${baseUrl}/${tilerBasePath}`;
-                                        
+
                                         return {
                                             type: "dzi",
                                             url: xmlUrl,
