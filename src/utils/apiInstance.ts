@@ -1,0 +1,51 @@
+import axios, {
+    AxiosInstance,
+    AxiosResponse,
+} from "axios";
+
+// Используем прокси для всех запросов к API
+const getBaseURL = () => {
+  // Если указан прокси, используем его
+  if (typeof window !== "undefined") {
+    return "/api/proxy";
+  }
+  // На сервере используем прямой URL (если нужно)
+  return process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+};
+
+const axiosInstance: AxiosInstance = axios.create({
+  baseURL: getBaseURL(),
+  timeout: 10000,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+// Добавляем токен из .env или из Redux store
+axiosInstance.interceptors.request.use(
+  (config) => {
+    // Приоритет: токен из .env > токен из localStorage (если нужно)
+    const envToken = process.env.NEXT_PUBLIC_API_TOKEN;
+
+    if (envToken) {
+      config.headers["Authorization"] = `Bearer ${envToken}`;
+    }
+
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+axiosInstance.interceptors.response.use(
+  (response: AxiosResponse) => response,
+  (error) => {
+    if (error.response) {
+      console.error(`API Error: ${error.response.status}`, error.response.data);
+    } else {
+      console.error("Network Error", error.message);
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default axiosInstance;
