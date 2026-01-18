@@ -61,20 +61,18 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
                                             ? `${uuid1}/${uuid2}/${uuid2}`
                                             : `tiler/dzi/${uuid1}/${uuid2}/${uuid2}`;
 
-                                        // Для запроса информации по снимку (XML) - без /files
-                                        // Для запросов тайлов - с /files
+                                        // Для запроса информации по снимку (DZI XML) - без /files
+                                        // Для запросов тайлов (картинок) - с /files
                                         // Используем кастомный tileSource для правильной обработки
+                                        const xmlUrl = `${baseUrl}/${tilerBasePath}`;
+                                        
                                         return {
-                                            type: "image",
-                                            url: `${baseUrl}/${tilerBasePath}`,
-                                            buildPyramid: false,
-                                            tileSource: {
-                                                type: "image",
-                                                url: `${baseUrl}/${tilerBasePath}`,
-                                                tileUrl: (level: number, x: number, y: number) => {
-                                                    // Для тайлов добавляем /files
-                                                    return `${baseUrl}/${tilerBasePath}/files/${level}/${x}_${y}.jpeg`;
-                                                },
+                                            type: "dzi",
+                                            url: xmlUrl,
+                                            // Кастомная функция для формирования URL тайлов
+                                            getTileUrl: (level: number, x: number, y: number) => {
+                                                // Для тайлов добавляем /files
+                                                return `${baseUrl}/${tilerBasePath}/files/${level}/${x}_${y}.jpeg`;
                                             },
                                         };
                                     }
