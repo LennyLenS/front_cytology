@@ -63,19 +63,18 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
 
                                         // Для запроса информации по снимку (DZI XML) - без /files
                                         // Для запросов тайлов (картинок) - с /files
-                                        // Используем правильный формат для DZI tileSource
                                         const xmlUrl = `${baseUrl}/${tilerBasePath}`;
-                                        const tilesBaseUrl = `${baseUrl}/${tilerBasePath}/files`;
 
-                                        // OpenSeadragon для DZI ожидает объект с определенной структурой
-                                        // Используем правильный формат для кастомного DZI с путем к тайлам
-                                        return {
-                                            type: "dzi",
-                                            url: xmlUrl,
-                                            // Указываем базовый URL для тайлов
-                                            // OpenSeadragon будет формировать путь как: {tilesBaseUrl}/{level}/{x}_{y}.jpeg
-                                            tileUrl: tilesBaseUrl,
-                                        };
+                                        // Логирование для отладки
+                                        if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
+                                            console.log("🔵 DZI URL:", xmlUrl);
+                                            console.log("🔵 Expected tiles URL format:", `${baseUrl}/${tilerBasePath}/files/{level}/{x}_{y}.jpeg`);
+                                        }
+
+                                        // Возвращаем URL - OpenSeadragon загрузит DZI XML
+                                        // Если XML содержит неправильные пути к тайлам, нужно настроить на сервере
+                                        // или использовать кастомный tileSource handler
+                                        return xmlUrl;
                                     }
                                 }
 
