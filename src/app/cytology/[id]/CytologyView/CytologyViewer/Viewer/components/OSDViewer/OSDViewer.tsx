@@ -58,11 +58,11 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
 
                                         // Проверяем, содержит ли baseUrl уже tiler/dzi
                                         const tilerPath = baseUrl.includes("tiler/dzi")
-                                            ? `${uuid1}/${uuid2}/${uuid2}`
-                                            : `tiler/dzi/${uuid1}/${uuid2}/${uuid2}`;
+                                            ? `${uuid1}/${uuid2}/${uuid2}/files`
+                                            : `tiler/dzi/${uuid1}/${uuid2}/${uuid2}/files`;
 
-                                        // Формируем путь в формате: {baseUrl}/tiler/dzi/{uuid1}/{uuid2}/{uuid2}
-                                        // OpenSeadragon автоматически добавит /files/{level}/{x}_{y}.jpeg
+                                        // Формируем путь в формате: {baseUrl}/tiler/dzi/{uuid1}/{uuid2}/{uuid2}/files
+                                        // OpenSeadragon автоматически добавит /{level}/{x}_{y}.jpeg
                                         return `${baseUrl}/${tilerPath}`;
                                     }
                                 }
