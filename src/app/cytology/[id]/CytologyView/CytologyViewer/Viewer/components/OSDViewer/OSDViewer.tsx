@@ -64,17 +64,24 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
                                         // Для запроса информации по снимку (DZI XML) - без /files
                                         // Для запросов тайлов (картинок) - с /files
                                         const xmlUrl = `${baseUrl}/${tilerBasePath}`;
+                                        const tilesBaseUrl = `${baseUrl}/${tilerBasePath}/files`;
 
                                         // Логирование для отладки
                                         if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
-                                            console.log("🔵 DZI URL:", xmlUrl);
-                                            console.log("🔵 Expected tiles URL format:", `${baseUrl}/${tilerBasePath}/files/{level}/{x}_{y}.jpeg`);
+                                            console.log("🔵 DZI XML URL:", xmlUrl);
+                                            console.log("🔵 Tiles base URL:", tilesBaseUrl);
                                         }
 
-                                        // Возвращаем URL - OpenSeadragon загрузит DZI XML
-                                        // Если XML содержит неправильные пути к тайлам, нужно настроить на сервере
-                                        // или использовать кастомный tileSource handler
-                                        return xmlUrl;
+                                        // OpenSeadragon автоматически добавляет "_files" к URL DZI файла
+                                        // Чтобы использовать "/files" вместо "_files", нужно переопределить путь к тайлам
+                                        // Используем объект tileSource с кастомным путем к тайлам
+                                        return {
+                                            type: "dzi",
+                                            url: xmlUrl,
+                                            // Переопределяем путь к тайлам через tilesUrl
+                                            // Это заменит автоматическое добавление "_files" на наш путь "/files"
+                                            tilesUrl: tilesBaseUrl,
+                                        };
                                     }
                                 }
 
