@@ -151,6 +151,7 @@ const CytologyView: React.FC<CytologyViewProps> = ({ generalCytologyId }) => {
                             item.seg_type === currentSegment ? item.segments : []
                         )}
                         imageUrl={cytologyInfoData?.original_image.image}
+                        filePath={cytologyInfoData?.original_image.file_path}
                     />
                 </Col>
                 <Col span={8} className="cytology-diagnosis">

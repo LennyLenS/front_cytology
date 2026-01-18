@@ -20,11 +20,12 @@ const Viewer = dynamic(() => import("./Viewer/Viewer"), { ssr: false });
 
 interface CytologyViewerProps {
     imageUrl: string | undefined;
+    filePath?: string;
     isEditMode: boolean;
     segments: ISegmentStack[];
 }
 
-const CytologyViewer: React.FC<CytologyViewerProps> = ({ imageUrl, isEditMode, segments }) => {
+const CytologyViewer: React.FC<CytologyViewerProps> = ({ imageUrl, filePath, isEditMode, segments }) => {
     const dispatch = useAppDispatch();
     const currentSegment = useAppSelector((state) => state.segment.currentSegment);
     const segmentStack = useAppSelector((state) => state.segment.segmentStack);
@@ -85,6 +86,7 @@ const CytologyViewer: React.FC<CytologyViewerProps> = ({ imageUrl, isEditMode, s
                             viewerType="osd"
                             tool={tool}
                             imageUrl={imageUrl}
+                            filePath={filePath}
                             segments={segments}
                             drawingEnabled={isEditMode}
                             selected={!!currentSegment}

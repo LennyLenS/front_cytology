@@ -15,6 +15,7 @@ export interface ICytologyImage {
     delay_time: number;
     viewed_flag: boolean;
     image: string;
+    file_path?: string; // Путь к файлу для DZI
 }
 
 export interface ICytologyInfo {

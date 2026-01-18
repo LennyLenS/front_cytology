@@ -14,6 +14,7 @@ interface OSDViewerProps {
     tool: "rectangle" | "polygon" | "move";
     selected: boolean;
     imageUrl: string;
+    filePath?: string;
     needInputPopup?: boolean;
 }
 
@@ -22,6 +23,7 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
     needPopup = false,
     tool,
     imageUrl,
+    filePath,
     selected,
     needInputPopup = false,
 }) => {
@@ -34,9 +36,18 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
                 >
                     <OpenSeadragonViewer
                         options={{
-                            tileSources: `${
-                                process.env.NEXT_PUBLIC_DZI_API_BASE_URL
-                            }/${imageUrl.replace("/media/", "")}`,
+                            tileSources: (() => {
+                                const baseUrl = process.env.NEXT_PUBLIC_DZI_API_BASE_URL || "";
+                                const imagePath = imageUrl.replace("/media/", "");
+
+                                // Если есть file_path, добавляем его как параметр запроса
+                                if (filePath) {
+                                    const separator = baseUrl.includes("?") ? "&" : "?";
+                                    return `${baseUrl}/${imagePath}${separator}file_path=${encodeURIComponent(filePath)}`;
+                                }
+
+                                return `${baseUrl}/${imagePath}`;
+                            })(),
                             prefixUrl: "/openseadragon-images/",
                             gestureSettingsMouse: {
                                 clickToZoom: false,

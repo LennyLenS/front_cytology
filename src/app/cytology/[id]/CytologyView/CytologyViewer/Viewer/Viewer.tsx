@@ -24,6 +24,7 @@ interface ViewerProps {
     tool: Tools;
     needPopup?: boolean;
     imageUrl: string;
+    filePath?: string;
     drawingEnabled?: boolean;
     selected: boolean;
     className?: string;
@@ -37,6 +38,7 @@ const Viewer: React.FC<ViewerProps> = ({
     needPopup = false,
     viewerType,
     imageUrl,
+    filePath,
     drawingEnabled = false,
     selected,
     className = undefined,
@@ -152,6 +154,7 @@ const Viewer: React.FC<ViewerProps> = ({
                     tool={tool}
                     needPopup={needPopup}
                     imageUrl={imageUrl}
+                    filePath={filePath}
                     drawingEnable={drawingEnabled}
                     selected={selected}
                 />
