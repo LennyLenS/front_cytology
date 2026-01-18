@@ -38,14 +38,29 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
                         options={{
                             tileSources: (() => {
                                 const baseUrl = process.env.NEXT_PUBLIC_DZI_API_BASE_URL || "";
-                                const imagePath = imageUrl.replace("/media/", "");
 
-                                // Если есть file_path, передаем его напрямую как параметр id
+                                // Если есть file_path, извлекаем UUID из него и формируем правильный путь
                                 if (filePath) {
-                                    const separator = baseUrl.includes("?") ? "&" : "?";
-                                    return `${baseUrl}/${imagePath}${separator}id=${encodeURIComponent(filePath)}`;
+                                    // Извлекаем UUID из file_path
+                                    // Формат file_path: {uuid1}/{uuid2}/{uuid2}_files/{level}/{x}_{y}.jpeg
+                                    // Нужно извлечь uuid1 и uuid2
+                                    const uuidRegex = /([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})/gi;
+                                    const uuids = filePath.match(uuidRegex);
+
+                                    if (uuids && uuids.length >= 2) {
+                                        // Первый UUID - это первый сегмент пути
+                                        const uuid1 = uuids[0];
+                                        // Второй UUID - это второй сегмент (может повторяться)
+                                        const uuid2 = uuids[1];
+
+                                        // Формируем путь в формате: /tiler/dzi/{uuid1}/{uuid2}/{uuid2}
+                                        // OpenSeadragon автоматически добавит /files/{level}/{x}_{y}.jpeg
+                                        return `${baseUrl}/tiler/dzi/${uuid1}/${uuid2}/${uuid2}`;
+                                    }
                                 }
 
+                                // Fallback: используем старый формат, если file_path не в ожидаемом формате
+                                const imagePath = imageUrl.replace("/media/", "");
                                 return `${baseUrl}/${imagePath}`;
                             })(),
                             prefixUrl: "/openseadragon-images/",
