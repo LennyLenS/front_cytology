@@ -37,7 +37,10 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
                     <OpenSeadragonViewer
                         options={{
                             tileSources: (() => {
-                                const baseUrl = process.env.NEXT_PUBLIC_DZI_API_BASE_URL || "";
+                                let baseUrl = process.env.NEXT_PUBLIC_DZI_API_BASE_URL || "";
+
+                                // Убираем trailing slash если есть
+                                baseUrl = baseUrl.replace(/\/+$/, "");
 
                                 // Если есть file_path, извлекаем UUID из него и формируем правильный путь
                                 if (filePath) {
@@ -53,9 +56,14 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
                                         // Второй UUID - это второй сегмент (может повторяться)
                                         const uuid2 = uuids[1];
 
-                                        // Формируем путь в формате: /tiler/dzi/{uuid1}/{uuid2}/{uuid2}
+                                        // Проверяем, содержит ли baseUrl уже tiler/dzi
+                                        const tilerPath = baseUrl.includes("tiler/dzi")
+                                            ? `${uuid1}/${uuid2}/${uuid2}`
+                                            : `tiler/dzi/${uuid1}/${uuid2}/${uuid2}`;
+
+                                        // Формируем путь в формате: {baseUrl}/tiler/dzi/{uuid1}/{uuid2}/{uuid2}
                                         // OpenSeadragon автоматически добавит /files/{level}/{x}_{y}.jpeg
-                                        return `${baseUrl}/tiler/dzi/${uuid1}/${uuid2}/${uuid2}`;
+                                        return `${baseUrl}/${tilerPath}`;
                                     }
                                 }
 
