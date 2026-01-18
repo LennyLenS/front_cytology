@@ -30,16 +30,25 @@ export default function UploadPhoto() {
     const dispatch = useDispatch();
     const [form] = useForm();
     const [isPatientData, setIsPatientData] = useState<IPatient[]>([]);
+    const [medWorkerId, setMedWorkerId] = useState<string | null>(null);
     const token = useAppSelector((state) => state.auth.accessToken);
 
     // Проверяем наличие токена: из .env или из Redux store
     const hasToken = !!token || !!process.env.NEXT_PUBLIC_API_TOKEN;
 
+    // Безопасное получение ID из localStorage (только на клиенте)
+    useEffect(() => {
+        if (typeof window !== "undefined" && hasToken) {
+            const id = localStorage.getItem("id");
+            setMedWorkerId(id ? String(id) : null);
+        }
+    }, [hasToken]);
+
     const {
         isLoading: isMedWorkerLoading,
         data: medWorkerData,
         error: errorMedWorker,
-    } = useGetMedWorkerQuery(hasToken ? String(localStorage.getItem("id")) : skipToken);
+    } = useGetMedWorkerQuery(hasToken && medWorkerId ? medWorkerId : skipToken);
     useRTKEffects({ isLoading: isMedWorkerLoading, error: errorMedWorker }, "Get medworker");
 
     useEffect(() => {
