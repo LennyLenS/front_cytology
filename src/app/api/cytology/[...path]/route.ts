@@ -56,17 +56,39 @@ async function handleRequest(
             });
         }
 
+        // Получаем Content-Type из запроса
+        const contentType = request.headers.get("content-type") || "";
+        const isFormData = contentType.includes("multipart/form-data");
+
+        // Логирование Content-Type
+        if (process.env.NODE_ENV === "development") {
+            console.log("🔵 Content-Type:", contentType, "isFormData:", isFormData);
+        }
+
         // Получаем тело запроса если есть
         let body = null;
         if (method !== "GET" && method !== "DELETE") {
-            try {
-                body = await request.json();
-            } catch {
-                // Если не JSON, пробуем как FormData
+            if (isFormData) {
+                // Если это FormData, парсим как FormData
                 try {
-                    const formData = await request.formData();
-                    body = formData;
-                } catch {
+                    body = await request.formData();
+                    if (process.env.NODE_ENV === "development") {
+                        console.log("🔵 FormData parsed successfully, entries:", Array.from(body.entries()).map(([key]) => key));
+                    }
+                } catch (error) {
+                    if (process.env.NODE_ENV === "development") {
+                        console.error("❌ Failed to parse FormData:", error);
+                    }
+                    body = null;
+                }
+            } else {
+                // Иначе парсим как JSON
+                try {
+                    body = await request.json();
+                } catch (error) {
+                    if (process.env.NODE_ENV === "development") {
+                        console.error("❌ Failed to parse JSON:", error);
+                    }
                     body = null;
                 }
             }
@@ -76,18 +98,16 @@ async function handleRequest(
         const authHeader = request.headers.get("authorization");
         const token = API_TOKEN || authHeader?.replace("Bearer ", "");
 
-        const headers: HeadersInit = {
-            "Content-Type": "application/json",
-        };
+        const headers: HeadersInit = {};
 
         if (token) {
             headers["Authorization"] = `Bearer ${token}`;
         }
 
-        // Копируем другие заголовки если нужно
-        const contentType = request.headers.get("content-type");
-        if (contentType && contentType.includes("multipart/form-data")) {
-            delete headers["Content-Type"]; // Пусть fetch установит правильный Content-Type для FormData
+        // Для FormData не устанавливаем Content-Type - браузер сам установит с boundary
+        // Для JSON устанавливаем Content-Type
+        if (!isFormData && body) {
+            headers["Content-Type"] = "application/json";
         }
 
         const fetchOptions: RequestInit = {
