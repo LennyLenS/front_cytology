@@ -69,8 +69,9 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
                                         return {
                                             type: "dzi",
                                             url: xmlUrl,
-                                            // Кастомная функция для формирования URL тайлов
-                                            getTileUrl: (level: number, x: number, y: number) => {
+                                            // Переопределяем путь к тайлам, добавляя /files
+                                            // OpenSeadragon будет использовать этот формат для тайлов
+                                            tileUrl: (level: number, x: number, y: number) => {
                                                 // Для тайлов добавляем /files
                                                 return `${baseUrl}/${tilerBasePath}/files/${level}/${x}_${y}.jpeg`;
                                             },
