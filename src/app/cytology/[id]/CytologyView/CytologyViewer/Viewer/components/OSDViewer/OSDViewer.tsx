@@ -57,13 +57,26 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
                                         const uuid2 = uuids[1];
 
                                         // Проверяем, содержит ли baseUrl уже tiler/dzi
-                                        const tilerPath = baseUrl.includes("tiler/dzi")
-                                            ? `${uuid1}/${uuid2}/${uuid2}/files`
-                                            : `tiler/dzi/${uuid1}/${uuid2}/${uuid2}/files`;
+                                        const tilerBasePath = baseUrl.includes("tiler/dzi")
+                                            ? `${uuid1}/${uuid2}/${uuid2}`
+                                            : `tiler/dzi/${uuid1}/${uuid2}/${uuid2}`;
 
-                                        // Формируем путь в формате: {baseUrl}/tiler/dzi/{uuid1}/{uuid2}/{uuid2}/files
-                                        // OpenSeadragon автоматически добавит /{level}/{x}_{y}.jpeg
-                                        return `${baseUrl}/${tilerPath}`;
+                                        // Для запроса информации по снимку (XML) - без /files
+                                        // Для запросов тайлов - с /files
+                                        // Используем кастомный tileSource для правильной обработки
+                                        return {
+                                            type: "image",
+                                            url: `${baseUrl}/${tilerBasePath}`,
+                                            buildPyramid: false,
+                                            tileSource: {
+                                                type: "image",
+                                                url: `${baseUrl}/${tilerBasePath}`,
+                                                tileUrl: (level: number, x: number, y: number) => {
+                                                    // Для тайлов добавляем /files
+                                                    return `${baseUrl}/${tilerBasePath}/files/${level}/${x}_${y}.jpeg`;
+                                                },
+                                            },
+                                        };
                                     }
                                 }
 
