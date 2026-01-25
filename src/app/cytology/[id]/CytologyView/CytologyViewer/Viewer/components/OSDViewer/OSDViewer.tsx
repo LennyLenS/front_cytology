@@ -85,22 +85,41 @@ const OSDViewer: React.FC<OSDViewerProps> = ({
                     throw new Error("Invalid DZI XML: Image element not found");
                 }
 
+                // Парсим DZI XML правильно:
+                // TileSize, Overlap, Format - это атрибуты элемента Image
+                // Size - это элемент с атрибутами Width и Height
                 const size = image.querySelector("Size");
-                const tileSize = image.querySelector("TileSize");
-                const format = image.querySelector("Format");
-                const overlap = image.querySelector("Overlap");
+                const tileSizeAttr = image.getAttribute("TileSize");
+                const formatAttr = image.getAttribute("Format");
+                const overlapAttr = image.getAttribute("Overlap");
+
+                // Получаем значения из DZI XML
+                const width = parseInt(size?.getAttribute("Width") || "0");
+                const height = parseInt(size?.getAttribute("Height") || "0");
+                const tileSizeValue = parseInt(tileSizeAttr || "0");
+                const overlapValue = parseInt(overlapAttr || "0");
+                // Format в DZI XML - это "jpeg", но для расширения файла нужно "jpeg" или "jpg"
+                const formatValue = formatAttr || "jpeg";
+                const fileExtension = formatValue === "jpeg" ? "jpeg" : formatValue;
+
+                // Валидация: если значения не получены из XML, это ошибка
+                if (width === 0 || height === 0 || tileSizeValue === 0) {
+                    throw new Error(`Invalid DZI XML: missing required attributes (width=${width}, height=${height}, tileSize=${tileSizeValue})`);
+                }
 
                 // Создаем объект tileSource с правильными путями к тайлам
                 const source = {
                     type: "dzi",
-                    width: parseInt(size?.getAttribute("Width") || "0"),
-                    height: parseInt(size?.getAttribute("Height") || "0"),
-                    tileSize: parseInt(tileSize?.getAttribute("Width") || "256"),
-                    tileOverlap: parseInt(overlap?.getAttribute("Width") || "0"),
-                    tileFormat: format?.getAttribute("Extension") || "jpeg",
+                    width: width,
+                    height: height,
+                    tileSize: tileSizeValue, // Используем реальное значение из DZI XML (510)
+                    tileOverlap: overlapValue, // Используем реальное значение из DZI XML (1)
+                    tileFormat: formatValue,
                     // Переопределяем путь к тайлам - используем /files вместо _files
+                    // OpenSeadragon передает x и y как координаты тайла (col, row)
                     getTileUrl: function(level: number, x: number, y: number) {
-                        return `${tilesBaseUrl}/${level}/${x}_${y}.jpeg`;
+                        // Используем формат из DZI XML
+                        return `${tilesBaseUrl}/${level}/${x}_${y}.${fileExtension}`;
                     },
                 };
 
