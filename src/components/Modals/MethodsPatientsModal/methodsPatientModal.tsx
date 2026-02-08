@@ -14,7 +14,9 @@ import { RootState } from "../../../stores/store";
 import { handleOk, handleCancel } from "../../../stores/methodsPatientModalSlice";
 import {
     useAddPatientMutation,
+    useAddCardMutation,
     useEditPatientMutation,
+    useEditCardMutation,
 } from "../../../service/medWorkerAndPatient";
 import { useRTKEffects } from "../../../service/hook";
 import isHaveEmailErrors from "@/utils/isHaveEmailErrors";
@@ -82,56 +84,76 @@ export default function MethodsPatientModal({}) {
 
     const [addPatient, { isLoading: isAddPatient, error: errorAddPatient }] =
         useAddPatientMutation();
+    const [addCard, { isLoading: isAddCard, error: errorAddCard }] =
+        useAddCardMutation();
     const [editPatient, { isLoading: isEditPatient, error: errorEditPatient }] =
         useEditPatientMutation();
+    const [editCard, { isLoading: isEditCard, error: errorEditCard }] =
+        useEditCardMutation();
 
     useRTKEffects({ isLoading: isAddPatient, error: errorAddPatient }, "Add patient");
+    useRTKEffects({ isLoading: isAddCard, error: errorAddCard }, "Add card");
     useRTKEffects({ isLoading: isEditPatient, error: errorEditPatient }, "Edit patient");
+    useRTKEffects({ isLoading: isEditCard, error: errorEditCard }, "Edit card");
 
-    const handleAddPatient = () => {
-        const payload = {
-            patient: {
-                first_name: watchedValues?.firstName,
-                last_name: watchedValues?.lastName,
-                fathers_name: watchedValues?.fathersName,
-                personal_policy: watchedValues?.personalPolicy?.replace(/\s+/g, "") ?? "",
-                email: watchedValues?.email,
-                ...(watchedValues?.isActive && { is_active: true }),
-                birth_date: watchedValues?.birthDate?.toISOString().split("T")[0],
-            },
-            card: {
-                diagnosis: watchedValues?.diagnosis,
-            },
-        };
+    const handleAddPatient = async () => {
+        try {
+            // В новом API сначала создаем пациента
+            const fullname = `${watchedValues?.lastName || ""} ${watchedValues?.firstName || ""} ${watchedValues?.fathersName || ""}`.trim();
+            const patientPayload = {
+                fullname: fullname,
+                email: watchedValues?.email || "",
+                policy: watchedValues?.personalPolicy?.replace(/\s+/g, "") || "",
+                active: watchedValues?.isActive || false,
+                malignancy: false, // По умолчанию false, можно добавить поле в форму
+                birth_date: watchedValues?.birthDate?.toISOString().split("T")[0] || "",
+            };
 
-        addPatient({
-            id: String(localStorage.getItem("id")),
-            payload,
-        });
-        dispatch(handleOk());
+            const { id: patientId } = await addPatient({ payload: patientPayload }).unwrap();
+
+            // Затем создаем карту пациента
+            const doctorId = String(localStorage.getItem("id"));
+            if (patientId && doctorId && watchedValues?.diagnosis) {
+                await addCard({
+                    doctorId,
+                    patientId,
+                    diagnosis: watchedValues.diagnosis,
+                }).unwrap();
+            }
+
+            dispatch(handleOk());
+        } catch (error) {
+            console.error("Error adding patient:", error);
+        }
     };
 
-    const handleEditPatient = () => {
-        const payload = {
-            patient: {
-                first_name: watchedValues?.firstName,
-                last_name: watchedValues?.lastName,
-                fathers_name: watchedValues?.fathersName,
-                personal_policy: watchedValues?.personalPolicy?.replace(/\s+/g, "") ?? "",
-                email: watchedValues?.email,
-                ...(watchedValues?.isActive && { is_active: true }),
-                birth_date: watchedValues?.birthDate?.toISOString().split("T")[0],
-            },
-            card: {
-                diagnosis: watchedValues?.diagnosis,
-            },
-        };
+    const handleEditPatient = async () => {
+        try {
+            // В новом API обновляем пациента (только active и malignancy)
+            if (patient?.id) {
+                await editPatient({
+                    id: patient.id, // UUID пациента
+                    payload: {
+                        active: watchedValues?.isActive || false,
+                        malignancy: false, // Можно добавить поле в форму
+                    },
+                }).unwrap();
+            }
 
-        editPatient({
-            id: patient.idCard,
-            payload,
-        });
-        dispatch(handleOk());
+            // Обновляем карту пациента (диагноз)
+            const doctorId = String(localStorage.getItem("id"));
+            if (patient?.id && doctorId && watchedValues?.diagnosis !== undefined) {
+                await editCard({
+                    doctorId,
+                    patientId: patient.id, // UUID пациента
+                    diagnosis: watchedValues.diagnosis || "",
+                }).unwrap();
+            }
+
+            dispatch(handleOk());
+        } catch (error) {
+            console.error("Error editing patient:", error);
+        }
     };
 
     const title = method === "create" ? "Создание карты" : "Редактирование карты";

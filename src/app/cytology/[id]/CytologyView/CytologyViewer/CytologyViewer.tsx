@@ -56,7 +56,7 @@ const CytologyViewer: React.FC<CytologyViewerProps> = ({ imageUrl, filePath, isE
     const handleChangeSegment = useCallback(
         (segmentId: string, contour: IPoint[]) => {
             if (segmentStackRef) {
-                const id = Number(segmentId);
+                const id = segmentId; // UUID (string) в новом API
                 const currentSegments = segmentStackRef.current.find(
                     (item) => item.seg_type === currentSegmentRef.current
                 );

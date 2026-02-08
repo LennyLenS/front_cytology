@@ -1,7 +1,7 @@
 import { IPatientRes } from "./patient"
 
 export interface ICardRes {
-  id: number;
+  id: string; // UUID в новом API
   patient: IPatientRes;
   acceptance_datetime: string;
   diagnosis: string;
@@ -9,7 +9,7 @@ export interface ICardRes {
 };
 
 export interface ICardReq {
-  id?: number;
+  id?: string; // UUID в новом API
   patient?: IPatientRes;
   acceptance_datetime?: string;
   has_nodules?: string;

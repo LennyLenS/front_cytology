@@ -16,8 +16,8 @@ export interface IPatientRes {
 };
 
 export interface IPatient {
-    idCard: string;
-    id: number;
+    idCard: string; // UUID карты пациента
+    id: string; // UUID пациента (в новом API все ID - UUID)
     fullName: string;
     birthDate: string;
     personalPolicy: string;

@@ -113,7 +113,7 @@ export default function PatientProfile() {
 
     const [isPatientData, setIsPatientData] = useState<IPatient>({
         idCard: "",
-        id: 0,
+        id: "", // UUID в новом API
         fullName: "",
         birthDate: "",
         diagnosis: "",
@@ -156,7 +156,7 @@ export default function PatientProfile() {
         if (cardData && patientData) {
             const patient: IPatient = {
                 idCard: patientId || "",
-                id: typeof patientData.id === 'string' ? parseInt(patientData.id) : patientData.id,
+                id: patientData.id || "", // UUID (string) в новом API
                 fullName: patientData.fullname || "",
                 birthDate: patientData.birth_date,
                 diagnosis: cardData.diagnosis || "",
@@ -172,10 +172,10 @@ export default function PatientProfile() {
         if (shotsData && shotsData.results) {
             const tmpAr = [];
             for (const cur of shotsData.results.shots) {
-                if (cur.id !== null) {
+                if (cur.id !== null && cur.id !== undefined) {
                     tmpAr.push(
                         createShotsData(
-                            typeof cur.id === 'string' ? parseInt(cur.id) : cur.id,
+                            cur.id, // UUID (string) в новом API
                             cur.diagnostic_marking + "-" + cur.diagnostic_number,
                             new Date(Date.parse(cur.diagnos_date)),
                             cur.material_type,

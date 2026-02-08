@@ -103,7 +103,7 @@ export const cytologyApi = createApi({
                 // При сериализации в JSON они преобразуются в обычные значения или null
                 const apiResponse = response as {
                     original_image: {
-                        id?: number;
+                        id?: string; // UUID в новом API
                         create_date: string;
                         delay_time?: number;
                         viewed_flag: boolean;
@@ -113,11 +113,12 @@ export const cytologyApi = createApi({
                     info: {
                         patient: any;
                         patient_card: {
-                            patient?: number;
-                            med_worker?: number;
+                            patient?: string; // UUID в новом API
+                            med_worker?: string; // UUID в новом API
                             diagnosis?: string;
                         };
                         image_group: {
+                            id?: string; // UUID в новом API
                             diagnostic_number: number;
                             diagnostic_marking?: string;
                             material_type?: string;
@@ -126,8 +127,8 @@ export const cytologyApi = createApi({
                             thyroglobulin?: number;
                             is_last: boolean;
                             diagnos_date: string;
-                            prev?: string;
-                            parent_prev?: string;
+                            prev?: string; // UUID в новом API
+                            parent_prev?: string; // UUID в новом API
                         };
                     };
                 };
@@ -135,7 +136,7 @@ export const cytologyApi = createApi({
                 // Преобразуем original_image
                 const originalImage = apiResponse.original_image;
                 const transformedOriginalImage: ICytologyImage = {
-                    id: originalImage.id || 0,
+                    id: originalImage.id || "", // UUID (string) в новом API
                     create_date: originalImage.create_date || "",
                     delay_time: originalImage.delay_time || 0,
                     viewed_flag: originalImage.viewed_flag || false,
@@ -149,8 +150,8 @@ export const cytologyApi = createApi({
                     patient: apiResponse.info.patient,
                     acceptance_datetime: imageGroup.diagnos_date || "",
                     diagnosis: apiResponse.info.patient_card.diagnosis || "",
-                    patient_card_id: apiResponse.info.patient_card.patient || 0,
-                    id: 0, // ID не передается в ответе API
+                    patient_card_id: apiResponse.info.patient_card.patient || "", // UUID (string) в новом API
+                    id: imageGroup.id || "", // UUID (string) в новом API
                     is_last: imageGroup.is_last || false,
                     diagnos_date: imageGroup.diagnos_date || "",
                     details: null, // Details не передаются в ответе
@@ -160,9 +161,9 @@ export const cytologyApi = createApi({
                     calcitonin: imageGroup.calcitonin || 0,
                     calcitonin_in_flush: imageGroup.calcitonin_in_flush || 0,
                     thyroglobulin: imageGroup.thyroglobulin || 0,
-                    prev: imageGroup.prev ? (imageGroup.prev as any) : null,
-                    parent_prev: imageGroup.parent_prev ? (imageGroup.parent_prev as any) : null,
-                    original_image: transformedOriginalImage.id,
+                    prev: imageGroup.prev || null, // UUID (string) в новом API
+                    parent_prev: imageGroup.parent_prev || null, // UUID (string) в новом API
+                    original_image: transformedOriginalImage.id, // UUID (string) в новом API
                 };
 
                 return {
@@ -235,7 +236,7 @@ export const cytologyApi = createApi({
             }),
             invalidatesTags: ["Segments"],
         }),
-        patchSegment: builder.mutation<void, { segmentId: string | number; points: IPoint[] }>({
+        patchSegment: builder.mutation<void, { segmentId: string; points: IPoint[] }>({
             query: ({ segmentId, points }) => ({
                 url: `/segment/update/${segmentId}`,
                 method: "PATCH",
@@ -243,7 +244,7 @@ export const cytologyApi = createApi({
             }),
             invalidatesTags: ["Segments"],
         }),
-        deleteSegment: builder.mutation<void, number>({
+        deleteSegment: builder.mutation<void, string>({
             query: (segmentId) => ({
                 url: `/segment/update/${segmentId}`,
                 method: "DELETE",

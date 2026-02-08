@@ -55,7 +55,9 @@ export default function UploadPhoto() {
         isLoading: isPatientsLoading,
         data: patientsData,
         error: errorPatients,
-    } = useGetMedWorkerPatientsQuery(hasToken && medWorkerId ? medWorkerId : skipToken);
+    } = useGetMedWorkerPatientsQuery(
+        hasToken && medWorkerId ? { doctorId: medWorkerId } : skipToken
+    );
     useRTKEffects({ isLoading: isPatientsLoading, error: errorPatients }, "Get patients");
 
     useEffect(() => {

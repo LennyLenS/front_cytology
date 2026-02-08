@@ -63,7 +63,9 @@ export default function Patients() {
         isLoading: isPatientsLoading,
         data: patientsData,
         error: errorPatients,
-    } = useGetMedWorkerPatientsQuery(doctorId || skipToken);
+    } = useGetMedWorkerPatientsQuery(
+        doctorId ? { doctorId } : skipToken
+    );
     useRTKEffects({ isLoading: isPatientsLoading, error: errorPatients }, "Get patients");
 
     useEffect(() => {

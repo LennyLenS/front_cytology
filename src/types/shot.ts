@@ -2,7 +2,7 @@ import { ICell } from "./cell";
 import { ICardReq } from "./card";
 
 export interface IShot {
-  id: number;
+  id: string; // UUID в новом API
   number: string;
   cytologyDate: string;
   materialType: string;
@@ -24,7 +24,7 @@ export interface IShotDetails {
 };
 
 export interface IShotReq {
-  id: number;
+  id: string; // UUID в новом API
   patient_card: ICardReq;
   is_last: boolean;
   diagnos_date: string;
@@ -40,7 +40,7 @@ export interface IShotReq {
   calcitonin: number;
   calcitonin_in_flush: number;
   thyroglobulin: number;
-  prev: number | null;
-  parent_prev: number;
-  original_image: number;
+  prev: string | null; // UUID в новом API
+  parent_prev: string; // UUID в новом API
+  original_image: string; // UUID в новом API
 };

@@ -10,7 +10,7 @@ export interface ICytology {
 }
 
 export interface ICytologyImage {
-    id: number;
+    id: string; // UUID в новом API
     create_date: string;
     delay_time: number;
     viewed_flag: boolean;
@@ -22,8 +22,8 @@ export interface ICytologyInfo {
     patient: IPatientInfo;
     acceptance_datetime: string;
     diagnosis: string;
-    patient_card_id: number;
-    id: number;
+    patient_card_id: string; // UUID в новом API
+    id: string; // UUID в новом API
     is_last: boolean;
     diagnos_date: string;
     details: ICytologyInfoDetails | null;
@@ -33,9 +33,9 @@ export interface ICytologyInfo {
     calcitonin: number;
     calcitonin_in_flush: number;
     thyroglobulin: number;
-    prev: null | number;
-    parent_prev: null | number;
-    original_image: null | number;
+    prev: null | string; // UUID в новом API
+    parent_prev: null | string; // UUID в новом API
+    original_image: null | string; // UUID в новом API
 }
 
 export interface ICytologyInfoDetails {
@@ -71,7 +71,7 @@ export interface ICytologyInfoClusterCharacteristics {
 
 export interface ICytolgyInfoPatch {
     patient_card: {
-        patient: number;
+        patient: string; // UUID в новом API
         diagnosis: string;
     };
     diagnostic_number: number;
@@ -96,12 +96,12 @@ export interface ICytologyHistoryItem {
     diagnos_date: string;
     diagnostic_marking: DiagnosisMarking;
     diagnostic_number: number;
-    id: number;
+    id: string; // UUID в новом API
     is_last: boolean;
     material_type: MaterialType;
-    original_image: number;
-    parent_prev: string | null; // UUID в API
-    patient_card: number;
-    prev: string | null; // UUID в API
+    original_image: string; // UUID в новом API
+    parent_prev: string | null; // UUID в новом API
+    patient_card: string; // UUID в новом API
+    prev: string | null; // UUID в новом API
     thyroglobulin: number;
 }

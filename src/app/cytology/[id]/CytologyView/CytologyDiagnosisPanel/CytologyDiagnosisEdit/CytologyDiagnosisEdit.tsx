@@ -82,7 +82,7 @@ const CytologyDiagnosisEdit: React.FC<CytologyDiagnosisEditProps> = ({
         const allOldSegments: ISegmentStack[] = [];
         const allNewSegments: ISegmentStack[] = [];
         const newSegmentsMap = new Map<string, ISegmentStack>();
-        const idMap = new Map<number | string, number | string>();
+        const idMap = new Map<string, string>(); // UUID (string) в новом API
 
         const createSegmentKey = (segment: ISegmentStack): string => {
             const sortedPoints = [...segment.points]
@@ -128,14 +128,15 @@ const CytologyDiagnosisEdit: React.FC<CytologyDiagnosisEditProps> = ({
                         },
                     }).catch((error) => console.warn(error));
                 } else if (segment.isEdited) {
-                    if (idMap.get(segment.id)) {
-                        patchSegment({ segmentId: idMap.get(segment.id)!, points: segment.points });
+                    const mappedId = idMap.get(segment.id);
+                    if (mappedId) {
+                        patchSegment({ segmentId: mappedId, points: segment.points }); // UUID (string) в новом API
                     } else {
                         console.error("Not in idMap", segment);
                     }
                 } else if (segment.isDeleted) {
                     console.log(segment, segment.id);
-                    deleteSegment(segment.id as number);
+                    deleteSegment(segment.id); // UUID (string) в новом API
                 }
             });
 

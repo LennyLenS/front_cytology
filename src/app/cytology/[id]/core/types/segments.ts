@@ -61,7 +61,7 @@ export const segmentsTranslated: Record<SegmentType, string> = {
 export type ISegmentResponse = IPaginated<ISegment>;
 
 export interface ISegment {
-    id: number;
+    id: string; // UUID в новом API
     data: ISegmentData[];
     group_type: GroupType;
     seg_type: SegmentType;
@@ -69,7 +69,7 @@ export interface ISegment {
 }
 
 export interface ISegmentStack {
-    id: number | string;
+    id: string; // UUID в новом API
     details?: ISegmentDetails;
     points: IPoint[];
     seg_type: SegmentType;
@@ -80,7 +80,7 @@ export interface ISegmentStack {
 }
 
 export interface ISegmentData {
-    id: number;
+    id: string; // UUID в новом API
     points: ISegmentPoint[];
     details: ISegmentDetails;
 }

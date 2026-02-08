@@ -1,5 +1,5 @@
 export interface IPatientInfo {
-    id: number;
+    id: string; // UUID в новом API
     first_name: string;
     last_name: string;
     fathers_name: string;

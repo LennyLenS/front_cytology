@@ -28,8 +28,12 @@ export const medWorkerAndPatientApi = createApi({
             query: (id) => `/med/doctor/${id}`,
             providesTags: ["MedWorker"],
         }),
-        getMedWorkerPatients: builder.query<any[], string>({
-            query: (id) => `/med/doctor/${id}/patients`,
+        getMedWorkerPatients: builder.query<any[], { doctorId: string; status?: boolean }>({
+            query: ({ doctorId, status }) => {
+                const url = `/med/doctor/${doctorId}/patients`;
+                // Добавляем query параметр status если указан
+                return status !== undefined ? `${url}?status=${status}` : url;
+            },
             providesTags: ["Patient"],
         }),
         editMedWorker: builder.mutation<void, { id: string; payload: Partial<IMedWorkerRes> }>({
@@ -40,19 +44,43 @@ export const medWorkerAndPatientApi = createApi({
             }),
             invalidatesTags: ["MedWorker"],
         }),
-        addPatient: builder.mutation<void, { id: string; payload: Partial<any> }>({
+        addPatient: builder.mutation<{ id: string }, { payload: { fullname: string; email: string; policy: string; active: boolean; malignancy: boolean; birth_date: string } }>({
             query: (body) => ({
                 url: `/med/patient`,
                 method: "POST",
                 body: body.payload,
             }),
             invalidatesTags: ["Patient"],
+            transformResponse: (response: any): { id: string } => {
+                // API возвращает { id: uuid }
+                return { id: response.id || "" };
+            },
         }),
-        editPatient: builder.mutation<void, { id: string; payload: Partial<any> }>({
+        addCard: builder.mutation<void, { doctorId: string; patientId: string; diagnosis: string }>({
+            query: ({ doctorId, patientId, diagnosis }) => ({
+                url: `/med/card`,
+                method: "POST",
+                body: {
+                    patient_id: patientId,
+                    doctor_id: doctorId,
+                    diagnosis: diagnosis,
+                },
+            }),
+            invalidatesTags: ["Patient"],
+        }),
+        editPatient: builder.mutation<void, { id: string; payload: { active?: boolean; malignancy?: boolean } }>({
             query: ({ id, payload }) => ({
                 url: `/med/patient/${id}`,
                 method: "PATCH",
                 body: payload,
+            }),
+            invalidatesTags: ["Patient"],
+        }),
+        editCard: builder.mutation<void, { doctorId: string; patientId: string; diagnosis: string }>({
+            query: ({ doctorId, patientId, diagnosis }) => ({
+                url: `/med/card/${doctorId}/${patientId}`,
+                method: "PATCH",
+                body: { diagnosis },
             }),
             invalidatesTags: ["Patient"],
         }),
@@ -85,7 +113,7 @@ export const medWorkerAndPatientApi = createApi({
                     results: {
                         patient: {} as any, // Пациент не возвращается в этом endpoint
                         shots: cytologyImages.map((img: any) => ({
-                            id: typeof img.id === 'string' ? parseInt(img.id) : img.id,
+                            id: img.id, // UUID (string) в новом API
                             patient_card: {} as any,
                             is_last: img.is_last || false,
                             diagnos_date: img.diagnos_date || "",
@@ -96,9 +124,9 @@ export const medWorkerAndPatientApi = createApi({
                             calcitonin: img.calcitonin || 0,
                             calcitonin_in_flush: img.calcitonin_in_flush || 0,
                             thyroglobulin: img.thyroglobulin || 0,
-                            prev: img.prev || null,
-                            parent_prev: img.parent_prev || 0,
-                            original_image: img.original_image || 0,
+                            prev: img.prev || null, // UUID (string) в новом API
+                            parent_prev: img.parent_prev || "", // UUID (string) в новом API
+                            original_image: img.original_image || "", // UUID (string) в новом API
                         })),
                     },
                 };
@@ -114,7 +142,9 @@ export const {
     useGetPatientQuery,
     useEditMedWorkerMutation,
     useAddPatientMutation,
+    useAddCardMutation,
     useEditPatientMutation,
+    useEditCardMutation,
     useDeletePatientMutation,
     useGetShotsQuery,
 } = medWorkerAndPatientApi;
