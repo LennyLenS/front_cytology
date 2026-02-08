@@ -20,7 +20,7 @@ import MethodsPatientModal from "@/components/Modals/MethodsPatientsModal/method
 import { localizations } from "../../types/constants";
 import { useDispatch } from "react-redux";
 import { setToken } from "../../stores/authSlice";
-import { useGetMedWorkerQuery, useGetShotsQuery } from "../../service/medWorkerAndPatient";
+import { useGetShotsQuery, useGetCardQuery, useGetPatientQuery } from "../../service/medWorkerAndPatient";
 import { useRTKEffects } from "../../service/hook";
 import { ICardReq } from "@/types/card";
 import { IShot } from "@/types/shot";
@@ -123,54 +123,63 @@ export default function PatientProfile() {
     });
     const [isShotsData, setIsShotsData] = useState<IShot[]>([]);
 
+    const doctorId = accessToken ? String(localStorage.getItem("id")) : null;
+    const patientId = params.get("id");
+
     const {
-        data: medWorkerData,
-        isLoading: isMedWorkerLoading,
-        error: errorMedWorker,
-    } = useGetMedWorkerQuery(accessToken ? String(localStorage.getItem("id")) : skipToken);
+        data: cardData,
+        isLoading: isCardLoading,
+        error: errorCard,
+    } = useGetCardQuery(
+        doctorId && patientId ? { doctorId, patientId } : skipToken
+    );
+
+    const {
+        data: patientData,
+        isLoading: isPatientLoading,
+        error: errorPatient,
+    } = useGetPatientQuery(patientId || skipToken);
+
     const {
         data: shotsData,
         isLoading: isShotsLoading,
         error: errorShots,
-    } = useGetShotsQuery(accessToken ? String(params.get("id")) : skipToken);
+    } = useGetShotsQuery(
+        doctorId && patientId ? { doctorId, patientId } : skipToken
+    );
 
-    useRTKEffects({ isLoading: isMedWorkerLoading, error: errorMedWorker }, "Get medworker");
+    useRTKEffects({ isLoading: isCardLoading, error: errorCard }, "Get card");
+    useRTKEffects({ isLoading: isPatientLoading, error: errorPatient }, "Get patient");
     useRTKEffects({ isLoading: isShotsLoading, error: errorShots }, "Get shots");
 
     useEffect(() => {
-        if (medWorkerData && params.get("id") && shotsData) {
-            const patientCard = medWorkerData.results.cards.find(
-                (item: ICardReq) => String(item.id) == params.get("id")
-            );
-            if (patientCard) {
-                const patient: any = {
-                    idCard: patientCard.id.toString(),
-                    id: patientCard.patient.id,
-                    fullName:
-                        patientCard.patient.last_name +
-                        " " +
-                        patientCard.patient.first_name +
-                        " " +
-                        patientCard.patient.fathers_name,
-                    birthDate: patientCard.patient.birth_date,
-                    diagnosis: patientCard.diagnosis,
-                    email: patientCard.patient.email,
-                    personalPolicy: patientCard.patient.personal_policy,
-                    isActive: patientCard.patient.is_active,
-                };
-                setIsPatientData(patient);
-            }
+        if (cardData && patientData) {
+            const patient: IPatient = {
+                idCard: patientId || "",
+                id: typeof patientData.id === 'string' ? parseInt(patientData.id) : patientData.id,
+                fullName: patientData.fullname || "",
+                birthDate: patientData.birth_date,
+                diagnosis: cardData.diagnosis || "",
+                email: patientData.email,
+                personalPolicy: patientData.policy || "",
+                isActive: patientData.active,
+            };
+            setIsPatientData(patient);
+        }
+    }, [cardData, patientData, patientId]);
 
+    useEffect(() => {
+        if (shotsData && shotsData.results) {
             const tmpAr = [];
             for (const cur of shotsData.results.shots) {
                 if (cur.id !== null) {
                     tmpAr.push(
                         createShotsData(
-                            cur.id,
+                            typeof cur.id === 'string' ? parseInt(cur.id) : cur.id,
                             cur.diagnostic_marking + "-" + cur.diagnostic_number,
                             new Date(Date.parse(cur.diagnos_date)),
                             cur.material_type,
-                            cur.details.probs,
+                            cur.details?.probs || [],
                             "",
                             cur.diagnostic_marking[0] === "П" ? 0 : 1
                         )
@@ -179,7 +188,7 @@ export default function PatientProfile() {
             }
             setIsShotsData(tmpAr);
         }
-    }, [medWorkerData, shotsData]);
+    }, [shotsData]);
 
     const [isSearchShots, setIsSearchShots] = useState<string>("");
 

@@ -13,7 +13,7 @@ import UploadPhotoModal from "./components/UploadPhotoModal/uploadPhotoModal";
 import { useDispatch, useSelector } from "react-redux";
 import { handleShow as uploadPhotoCardHandleShow } from "../../stores/uploadPhotoSlice";
 import { handleShow as methodsPatientModalHandleShow } from "../../stores/methodsPatientModalSlice";
-import { useGetMedWorkerQuery } from "../../service/medWorkerAndPatient";
+import { useGetMedWorkerQuery, useGetMedWorkerPatientsQuery } from "../../service/medWorkerAndPatient";
 import { useRTKEffects } from "../../service/hook";
 import { IPatient } from "../../types/patient";
 import { localizations, markings } from "../../types/constants";
@@ -51,28 +51,29 @@ export default function UploadPhoto() {
     } = useGetMedWorkerQuery(hasToken && medWorkerId ? medWorkerId : skipToken);
     useRTKEffects({ isLoading: isMedWorkerLoading, error: errorMedWorker }, "Get medworker");
 
+    const {
+        isLoading: isPatientsLoading,
+        data: patientsData,
+        error: errorPatients,
+    } = useGetMedWorkerPatientsQuery(hasToken && medWorkerId ? medWorkerId : skipToken);
+    useRTKEffects({ isLoading: isPatientsLoading, error: errorPatients }, "Get patients");
+
     useEffect(() => {
-        if (medWorkerData) {
-            const patients: IPatient[] = medWorkerData.results.cards.map(
-                (item: any, index: number) => ({
-                    idCard: item.id,
-                    id: item.patient.id,
-                    fullName:
-                        item.patient.first_name +
-                        " " +
-                        item.patient.last_name +
-                        " " +
-                        item.patient.fathers_name,
-                    birthDate: item.patient.birth_date,
-                    diagnosis: item.diagnosis,
-                    email: item.patient.email,
-                    personalPolicy: item.patient.personal_policy,
-                    isActive: item.patient.is_active,
-                })
-            );
+        if (patientsData && Array.isArray(patientsData)) {
+            // Новый API возвращает массив пациентов напрямую
+            const patients: IPatient[] = patientsData.map((patient: any) => ({
+                idCard: patient.id,
+                id: patient.id,
+                fullName: patient.fullname || "",
+                birthDate: patient.birth_date,
+                diagnosis: "", // Диагноз нужно получать из карты отдельно
+                email: patient.email,
+                personalPolicy: patient.policy || "",
+                isActive: patient.active,
+            }));
             setIsPatientData(patients);
         }
-    }, [medWorkerData]);
+    }, [patientsData]);
 
     const watchedValues = useWatch([], form);
     const isValidForm =

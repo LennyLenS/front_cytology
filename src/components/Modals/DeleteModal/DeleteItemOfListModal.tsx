@@ -52,11 +52,16 @@ export function useDeleteItemOfListModal<ItemDataType extends BaseItemDataType>(
 
     const ModalFinishDeleteItem = useCallback(() => {
         if (itemType === "patient" && deletingItemId != undefined) {
-            deletePatient(deletingItemId.toString());
+            // В новом API для удаления карты нужны doctorId и patientId
+            // deletingItemId содержит patientId, doctorId нужно получить из localStorage
+            const doctorId = localStorage.getItem("id");
+            if (doctorId) {
+                deletePatient({ doctorId, patientId: deletingItemId.toString() });
+            }
         }
         //setDataSource(dataSource.filter(({ key }) => key != deletingItemId));
         handleOkDeleteItem();
-    }, [dataSource, deletingItemId, handleOkDeleteItem, setDataSource]);
+    }, [dataSource, deletingItemId, handleOkDeleteItem, setDataSource, deletePatient]);
 
     function DeleteItemOfListModal() {
         const [form] = Form.useForm();

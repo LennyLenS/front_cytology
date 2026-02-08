@@ -20,7 +20,7 @@ import { useDispatch } from "react-redux";
 import { handleShow as handleShow_editDoctorModal } from "../../stores/editMedWorkerModalSlice";
 import { handleShow as handleShow_methodsPatientModal } from "../../stores/methodsPatientModalSlice";
 import { setToken } from "../../stores/authSlice";
-import { useGetMedWorkerQuery } from "../../service/medWorkerAndPatient";
+import { useGetMedWorkerQuery, useGetMedWorkerPatientsQuery } from "../../service/medWorkerAndPatient";
 import { useRTKEffects } from "../../service/hook";
 import { IPatient } from "../../types/patient";
 import { IMedWorker } from "../../types/medWorker";
@@ -50,54 +50,63 @@ export default function Patients() {
 
     const [pageSize, setPageSize] = useState(10);
 
+    const doctorId = accessToken ? String(localStorage.getItem("id")) : null;
+
     const {
         isLoading: isMedWorkerLoading,
         data: medWorkerData,
         error: errorMedWorker,
-    } = useGetMedWorkerQuery(accessToken ? String(localStorage.getItem("id")) : skipToken);
+    } = useGetMedWorkerQuery(doctorId || skipToken);
     useRTKEffects({ isLoading: isMedWorkerLoading, error: errorMedWorker }, "Get medworker");
+
+    const {
+        isLoading: isPatientsLoading,
+        data: patientsData,
+        error: errorPatients,
+    } = useGetMedWorkerPatientsQuery(doctorId || skipToken);
+    useRTKEffects({ isLoading: isPatientsLoading, error: errorPatients }, "Get patients");
 
     useEffect(() => {
         if (data?.accessToken) {
             dispatch(setToken(data.accessToken));
-            localStorage.setItem(
-                "id",
-                jwtDecode<{ user_id: number }>(data.accessToken).user_id.toString()
-            );
+            const decoded = jwtDecode<{ user_id: string }>(data.accessToken);
+            localStorage.setItem("id", decoded.user_id);
         }
     }, [data]);
 
     useEffect(() => {
         if (medWorkerData) {
+            // Новый API возвращает doctor с полями: id, fullname, org, job, description
+            const fullnameParts = (medWorkerData.fullname || "").split(" ");
             setIsMedWorkerData({
-                id: medWorkerData.results.med_worker.id,
-                lastName: medWorkerData.results.med_worker.last_name,
-                firstName: medWorkerData.results.med_worker.first_name,
-                fathersName: medWorkerData.results.med_worker.fathers_name,
-                job: medWorkerData.results.med_worker.job,
-                medOrganization: medWorkerData.results.med_worker.med_organization,
-                isRemoteWorker: medWorkerData.results.med_worker.is_remote_worker,
-                expertDetails: medWorkerData.results.med_worker.expert_details,
+                id: medWorkerData.id,
+                lastName: fullnameParts[0] || "",
+                firstName: fullnameParts[1] || "",
+                fathersName: fullnameParts[2] || "",
+                job: medWorkerData.job || "",
+                medOrganization: medWorkerData.org || "",
+                isRemoteWorker: false, // Не передается в новом API
+                expertDetails: medWorkerData.description || "",
             });
+        }
+    }, [medWorkerData]);
 
-            const patients: IPatient[] = medWorkerData.results.cards.map((item: any) => ({
-                idCard: item.id,
-                id: item.patient.id,
-                fullName:
-                    item.patient.first_name +
-                    " " +
-                    item.patient.last_name +
-                    " " +
-                    item.patient.fathers_name,
-                birthDate: item.patient.birth_date,
-                diagnosis: item.diagnosis,
-                email: item.patient.email,
-                personalPolicy: item.patient.personal_policy,
-                isActive: item.patient.is_active,
+    useEffect(() => {
+        if (patientsData && Array.isArray(patientsData)) {
+            // Новый API возвращает массив пациентов напрямую с полями: id, fullname, email, policy, active, birth_date
+            const patients: IPatient[] = patientsData.map((patient: any) => ({
+                idCard: patient.id, // Используем patient.id как idCard (для удаления нужны doctorId и patientId)
+                id: patient.id,
+                fullName: patient.fullname || "",
+                birthDate: patient.birth_date,
+                diagnosis: "", // Диагноз нужно получать из карты отдельно через /med/card/{doctor_id}/{patient_id}
+                email: patient.email,
+                personalPolicy: patient.policy || "",
+                isActive: patient.active,
             }));
             setIsPatientData(patients);
         }
-    }, [medWorkerData]);
+    }, [patientsData]);
 
     useEffect(() => {
         const tableResize = () => {

@@ -136,10 +136,10 @@ export default function UploadPhotoModal() {
                 const patientCardId = idCard || "1";
                 formData.append("patient_card", String(patientCardId));
 
-                const { image_id } = await createCytology({ payload: formData }).unwrap();
+                const { id } = await createCytology({ payload: formData }).unwrap();
 
                 dispatch(handleOk());
-                router.push(`/diagnostic_is_running/${image_id}`);
+                router.push(`/diagnostic_is_running/${id}`);
             } catch (error) {
                 console.error("Upload failed:", error);
                 message.error("Ошибка загрузки файла");

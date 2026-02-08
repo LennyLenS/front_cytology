@@ -57,13 +57,17 @@ export const cytologyApi = createApi({
             query: (id) => `/history/${id}`,
             providesTags: ["Cytology"],
         }),
-        createCytology: builder.mutation<{ "image_id": number }, { payload: FormData | Partial<any> }>({
+        createCytology: builder.mutation<{ id: string }, { payload: FormData | Partial<any> }>({
             query: (body) => ({
                 url: "/create",
                 method: "POST",
                 body: body.payload,
             }),
             invalidatesTags: ["Cytology"],
+            transformResponse: (response: any): { id: string } => {
+                // Новый API возвращает { id: uuid } вместо { image_id: number }
+                return { id: response.id || response.image_id?.toString() || "" };
+            },
         }),
     }),
 });
