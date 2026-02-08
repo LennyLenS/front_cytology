@@ -24,11 +24,16 @@ const axiosInstance: AxiosInstance = axios.create({
 // Добавляем токен из .env или из Redux store
 axiosInstance.interceptors.request.use(
   (config) => {
-    // Приоритет: токен из .env > токен из localStorage (если нужно)
-    const envToken = process.env.NEXT_PUBLIC_API_TOKEN;
+    // Не добавляем токен для endpoints авторизации (login, refresh)
+    const isAuthEndpoint = config.url?.includes('/login') || config.url?.includes('/refresh');
 
-    if (envToken) {
-      config.headers["Authorization"] = `Bearer ${envToken}`;
+    if (!isAuthEndpoint) {
+      // Приоритет: токен из .env > токен из localStorage (если нужно)
+      const envToken = process.env.NEXT_PUBLIC_API_TOKEN;
+
+      if (envToken) {
+        config.headers["Authorization"] = `Bearer ${envToken}`;
+      }
     }
 
     return config;

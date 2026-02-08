@@ -5,10 +5,14 @@ export default async function refreshUserToken(token:string){
     console.log('refreshing user token');
     console.log(token);
 
+    // В новом API endpoint /refresh (без префикса auth/)
+    // refresh_token передается в теле запроса, а не в заголовке
     const response= await apiInstance({
         method:'POST',
-        url:`auth/refresh`,
-        headers:{token}
+        url:`/api/v1/refresh`,
+        data: {
+            refresh_token: token
+        }
     });
 
     console.log('response.data', response.data);
@@ -20,8 +24,3 @@ export default async function refreshUserToken(token:string){
     return {access_token, refresh_token};
 
 }
-
-
-
-
-
