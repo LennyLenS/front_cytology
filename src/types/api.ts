@@ -9,12 +9,8 @@ export interface IResultsGetMedWorker {
   med_worker: IMedWorkerRes;
 };
 
-export interface IApiGetMedWorker {
-  count: number;
-  next: null | string;
-  previous: null | string;
-  results: IResultsGetMedWorker;
-};
+// Новый API возвращает doctor напрямую, без обертки results
+export type IApiGetMedWorker = IMedWorkerRes;
 
 export interface IApiAddPatient {
   patient: IPatientReq;

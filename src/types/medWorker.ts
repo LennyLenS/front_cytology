@@ -14,7 +14,7 @@ export interface IMedWorkerRes {
 };
 
 export interface IMedWorker {
-  id: number;
+  id: string | number; // Может быть UUID (string) или number для обратной совместимости
   lastName: string;
   firstName: string;
   fathersName: string;
