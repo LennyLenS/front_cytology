@@ -49,6 +49,7 @@ const ViewEditConclusion: React.FC<ViewEditConclusionProps> = ({ editMode, initD
                         patient: initData.patient_card.patient,
                         diagnosis: values.diagnosis,
                     },
+                    diagnostic_number: initData.diagnostic_number,
                     details: {
                         material_type: values.materialType,
                         calcitonin: values.calcitonin,
