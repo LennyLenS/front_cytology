@@ -20,7 +20,7 @@ const CytologyHistoryCard: React.FC<CytologyHistoryCardProps> = (props) => {
                 extra={<Tag color={tagColors[tagKey]}>{tagTexts[tagKey]}</Tag>}
                 hoverable
             >
-                {getHighestProbIndex(props.details.probs)}
+                {props.details ? getHighestProbIndex(props.details.probs) : null}
             </Card>
         </Link>
     );
