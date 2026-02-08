@@ -83,7 +83,7 @@ function typeRendering(types: any, clas: number) {
 }
 
 function createShotsData(
-    id: number,
+    id: string, // UUID в новом API
     number: string,
     cytologyDate: any,
     materialType: unknown,

@@ -12,7 +12,7 @@ interface EditMedWorkerModalState {
 
 const initialState: EditMedWorkerModalState = {
     doctor: {
-        id: -1,
+        id: "", // UUID в новом API
         lastName: "",
         firstName: "",
         fathersName: "",
