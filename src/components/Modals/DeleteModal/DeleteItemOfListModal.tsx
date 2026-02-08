@@ -6,6 +6,8 @@ import { Modal, Form, Checkbox, Flex, ConfigProvider } from "antd";
 import React, { Dispatch, useCallback, useMemo, useState } from "react";
 import { useDeletePatientMutation } from "../../../service/medWorkerAndPatient";
 import { useRTKEffects } from "../../../service/hook";
+import { useAppSelector } from "@/stores/hook";
+import { getUserIdFromToken } from "../../../utils/getUserIdFromToken";
 
 const { Item } = Form;
 
@@ -34,6 +36,8 @@ export function useDeleteItemOfListModal<ItemDataType extends BaseItemDataType>(
 
     const [isModalOpenDeleteItem, setIsModalOpenDeleteItem] = useState<boolean>();
 
+    const accessToken = useAppSelector((state) => state.auth.accessToken);
+
     const [deletePatient, { isLoading: isDeletingPatient, error: errorDeletePatient }] =
         useDeletePatientMutation();
     useRTKEffects({ isLoading: isDeletingPatient, error: errorDeletePatient }, "ADD_NODE");
@@ -53,15 +57,15 @@ export function useDeleteItemOfListModal<ItemDataType extends BaseItemDataType>(
     const ModalFinishDeleteItem = useCallback(() => {
         if (itemType === "patient" && deletingItemId != undefined) {
             // В новом API для удаления карты нужны doctorId и patientId
-            // deletingItemId содержит patientId, doctorId нужно получить из localStorage
-            const doctorId = localStorage.getItem("id");
+            // deletingItemId содержит patientId, doctorId получаем из JWT токена
+            const doctorId = getUserIdFromToken(accessToken);
             if (doctorId) {
                 deletePatient({ doctorId, patientId: deletingItemId.toString() });
             }
         }
         //setDataSource(dataSource.filter(({ key }) => key != deletingItemId));
         handleOkDeleteItem();
-    }, [dataSource, deletingItemId, handleOkDeleteItem, setDataSource, deletePatient]);
+    }, [dataSource, deletingItemId, handleOkDeleteItem, setDataSource, deletePatient, accessToken]);
 
     function DeleteItemOfListModal() {
         const [form] = Form.useForm();

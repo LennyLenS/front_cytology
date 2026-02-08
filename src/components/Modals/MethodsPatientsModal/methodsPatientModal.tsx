@@ -19,6 +19,8 @@ import {
     useEditCardMutation,
 } from "../../../service/medWorkerAndPatient";
 import { useRTKEffects } from "../../../service/hook";
+import { useAppSelector } from "@/stores/hook";
+import { getUserIdFromToken } from "../../../utils/getUserIdFromToken";
 import isHaveEmailErrors from "@/utils/isHaveEmailErrors";
 import dayjs from "dayjs";
 
@@ -39,6 +41,7 @@ export default function MethodsPatientModal({}) {
     const [form] = useForm();
     const dispatch = useDispatch();
     const { open, method, patient } = useSelector((state: RootState) => state.methodPatientCard);
+    const accessToken = useAppSelector((state) => state.auth.accessToken);
 
     const watchedValues = useWatch([], form);
     const isValidForm =
@@ -112,9 +115,9 @@ export default function MethodsPatientModal({}) {
             const { id: patientId } = await addPatient({ payload: patientPayload }).unwrap();
 
             // Затем создаем карту пациента
-            const doctorId = localStorage.getItem("id");
-            if (!doctorId || doctorId === "null" || doctorId === "undefined") {
-                console.error("Doctor ID not found in localStorage");
+            const doctorId = getUserIdFromToken(accessToken);
+            if (!doctorId) {
+                console.error("Doctor ID not found in token");
                 return;
             }
             if (patientId && doctorId && watchedValues?.diagnosis) {
@@ -145,9 +148,9 @@ export default function MethodsPatientModal({}) {
             }
 
             // Обновляем карту пациента (диагноз)
-            const doctorId = localStorage.getItem("id");
-            if (!doctorId || doctorId === "null" || doctorId === "undefined") {
-                console.error("Doctor ID not found in localStorage");
+            const doctorId = getUserIdFromToken(accessToken);
+            if (!doctorId) {
+                console.error("Doctor ID not found in token");
                 return;
             }
             if (patient?.id && doctorId && watchedValues?.diagnosis !== undefined) {

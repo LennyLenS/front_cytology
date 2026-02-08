@@ -11,6 +11,8 @@ import { RootState } from "../../../../stores/store";
 import { handleOk, handleCancel } from "../../../../stores/editMedWorkerModalSlice";
 import { useEditMedWorkerMutation } from "../../../../service/medWorkerAndPatient";
 import { useRTKEffects } from "../../../../service/hook";
+import { useAppSelector } from "@/stores/hook";
+import { getUserIdFromToken } from "../../../../utils/getUserIdFromToken";
 
 const { useForm, useWatch, Item } = Form;
 const { TextArea } = Input;
@@ -19,6 +21,7 @@ export default function EditDoctorModal() {
     const [form] = useForm();
     const dispatch = useDispatch();
     const { open, doctor } = useSelector((state: RootState) => state.editDoctor);
+    const accessToken = useAppSelector((state) => state.auth.accessToken);
 
     const watchedValues = useWatch([], form);
     const isValidForm =
@@ -51,9 +54,9 @@ export default function EditDoctorModal() {
             doctor.medOrganization != watchedValues?.medOrganization ||
             doctor.isRemoteWorker != watchedValues?.isRemoteWorker
         ) {
-            const doctorId = localStorage.getItem("id");
-            if (!doctorId || doctorId === "null" || doctorId === "undefined") {
-                console.error("Doctor ID not found in localStorage");
+            const doctorId = getUserIdFromToken(accessToken);
+            if (!doctorId) {
+                console.error("Doctor ID not found in token");
                 return;
             }
             editMedWorker({

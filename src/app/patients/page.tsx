@@ -30,6 +30,7 @@ import { useSession } from "next-auth/react";
 import { useAppSelector } from "@/stores/hook";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { Empty } from "antd";
+import { getUserIdFromToken } from "../../utils/getUserIdFromToken";
 
 const { Search } = Input;
 
@@ -50,15 +51,8 @@ export default function Patients() {
 
     const [pageSize, setPageSize] = useState(10);
 
-    // Получаем ID врача из localStorage, проверяем что он не null и не пустая строка
-    const getDoctorId = (): string | null => {
-        if (!accessToken) return null;
-        if (typeof window === "undefined") return null;
-        const id = localStorage.getItem("id");
-        return id && id !== "null" && id !== "undefined" ? id : null;
-    };
-
-    const doctorId = getDoctorId();
+    // Получаем UUID врача из JWT токена
+    const doctorId = getUserIdFromToken(accessToken || data?.accessToken);
 
     const {
         isLoading: isMedWorkerLoading,
@@ -79,10 +73,8 @@ export default function Patients() {
     useEffect(() => {
         if (data?.accessToken) {
             dispatch(setToken(data.accessToken));
-            const decoded = jwtDecode<{ user_id: string }>(data.accessToken);
-            localStorage.setItem("id", decoded.user_id);
         }
-    }, [data]);
+    }, [data, dispatch]);
 
     useEffect(() => {
         if (medWorkerData) {

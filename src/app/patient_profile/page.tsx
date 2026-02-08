@@ -22,7 +22,6 @@ import { useDispatch } from "react-redux";
 import { setToken } from "../../stores/authSlice";
 import { useGetShotsQuery, useGetCardQuery, useGetPatientQuery } from "../../service/medWorkerAndPatient";
 import { useRTKEffects } from "../../service/hook";
-import { ICardReq } from "@/types/card";
 import { IShot } from "@/types/shot";
 import { IPatient } from "@/types/patient";
 import { handleShow as handleShow_methodsPatientModalSlice } from "../../stores/methodsPatientModalSlice";
@@ -31,6 +30,7 @@ import { useAppSelector } from "@/stores/hook";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { getUserIdFromToken } from "../../utils/getUserIdFromToken";
 
 const { Search } = Input;
 
@@ -123,15 +123,8 @@ export default function PatientProfile() {
     });
     const [isShotsData, setIsShotsData] = useState<IShot[]>([]);
 
-    // Получаем ID врача из localStorage, проверяем что он не null и не пустая строка
-    const getDoctorId = (): string | null => {
-        if (!accessToken) return null;
-        if (typeof window === "undefined") return null;
-        const id = localStorage.getItem("id");
-        return id && id !== "null" && id !== "undefined" && id.trim() !== "" ? id : null;
-    };
-
-    const doctorId = getDoctorId();
+    // Получаем UUID врача из JWT токена
+    const doctorId = getUserIdFromToken(accessToken);
     const patientId = params.get("id");
 
     const {

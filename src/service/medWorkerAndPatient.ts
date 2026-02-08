@@ -2,6 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { prepareHeaders } from "./headers";
 import { IApiGetMedWorker, IApiResponseGetShots } from "../types/api";
 import { IMedWorkerRes } from "../types/medWorker";
+import { ICardRes } from "../types/card";
 
 // Используем прокси для всех запросов к API
 // Swagger показывает base URL: http://localhost:8080/api/v1
@@ -91,7 +92,7 @@ export const medWorkerAndPatientApi = createApi({
             }),
             invalidatesTags: ["Patient"],
         }),
-        getCard: builder.query<any, { doctorId: string; patientId: string }>({
+        getCard: builder.query<ICardRes, { doctorId: string; patientId: string }>({
             query: ({ doctorId, patientId }) => `/med/card/${doctorId}/${patientId}`,
             providesTags: ["Patient"],
         }),

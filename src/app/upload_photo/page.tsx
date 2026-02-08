@@ -19,6 +19,7 @@ import { IPatient } from "../../types/patient";
 import { localizations, markings } from "../../types/constants";
 import { useAppSelector } from "@/stores/hook";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { getUserIdFromToken } from "../../utils/getUserIdFromToken";
 
 const { useWatch, useForm, Item } = Form;
 
@@ -30,27 +31,16 @@ export default function UploadPhoto() {
     const dispatch = useDispatch();
     const [form] = useForm();
     const [isPatientData, setIsPatientData] = useState<IPatient[]>([]);
-    const [medWorkerId, setMedWorkerId] = useState<string | null>(null);
     const token = useAppSelector((state) => state.auth.accessToken);
 
-    // Проверяем наличие токена: из .env или из Redux store
-    const hasToken = !!token || !!process.env.NEXT_PUBLIC_API_TOKEN;
-
-    // Безопасное получение ID из localStorage (только на клиенте)
-    useEffect(() => {
-        if (typeof window !== "undefined" && hasToken) {
-            const id = localStorage.getItem("id");
-            // Проверяем что ID не null, не "null", не "undefined" и не пустая строка
-            const validId = id && id !== "null" && id !== "undefined" && id.trim() !== "" ? id : null;
-            setMedWorkerId(validId);
-        }
-    }, [hasToken]);
+    // Получаем UUID врача из JWT токена
+    const medWorkerId = getUserIdFromToken(token);
 
     const {
         isLoading: isMedWorkerLoading,
         data: medWorkerData,
         error: errorMedWorker,
-    } = useGetMedWorkerQuery(hasToken && medWorkerId ? medWorkerId : skipToken);
+    } = useGetMedWorkerQuery(medWorkerId || skipToken);
     useRTKEffects({ isLoading: isMedWorkerLoading, error: errorMedWorker }, "Get medworker");
 
     const {
@@ -58,7 +48,7 @@ export default function UploadPhoto() {
         data: patientsData,
         error: errorPatients,
     } = useGetMedWorkerPatientsQuery(
-        hasToken && medWorkerId ? { doctorId: medWorkerId } : skipToken
+        medWorkerId ? { doctorId: medWorkerId } : skipToken
     );
     useRTKEffects({ isLoading: isPatientsLoading, error: errorPatients }, "Get patients");
 
@@ -94,7 +84,7 @@ export default function UploadPhoto() {
             <Page className="upload-photo-form">
                 <Spacer space={50} />
                 <Flex justify="center">
-                    {hasToken ? (
+                    {!!token ? (
                         <Flex vertical className="flex">
                             <Text className="title">Новый пунктат</Text>
 

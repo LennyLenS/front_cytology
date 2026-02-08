@@ -1,17 +1,15 @@
 import { IPatientRes } from "./patient"
 
+// Схема для GET /med/card/{doctor_id}/{patient_id} согласно Swagger
 export interface ICardRes {
-  id: string; // UUID в новом API
-  patient: IPatientRes;
-  acceptance_datetime: string;
-  diagnosis: string;
-  has_nodules?: any;
+  patient_id: string; // UUID пациента
+  doctor_id: string; // UUID врача
+  diagnosis: string; // Диагноз
 };
 
+// Схема для POST /med/card согласно Swagger
 export interface ICardReq {
-  id?: string; // UUID в новом API
-  patient?: IPatientRes;
-  acceptance_datetime?: string;
-  has_nodules?: string;
-  diagnosis: string;
+  patient_id: string; // UUID пациента
+  doctor_id: string; // UUID врача
+  diagnosis: string; // Диагноз
 };
