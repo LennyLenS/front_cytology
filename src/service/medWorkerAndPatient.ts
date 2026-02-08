@@ -4,14 +4,16 @@ import { IApiGetMedWorker, IApiResponseGetShots } from "../types/api";
 import { IMedWorkerRes } from "../types/medWorker";
 
 // Используем прокси для всех запросов к API
+// Swagger показывает base URL: http://localhost:8080/api/v1
 const getBaseUrl = () => {
     // Всегда используем прокси на клиенте для обхода CORS
+    // Прокси PROXY_TARGET = http://localhost:8080/api/v1
     if (typeof window !== "undefined") {
-        return "/api/proxy/api/v1";
+        return "/api/proxy";
     }
-    // На сервере используем прямой URL (если нужно)
+    // На сервере используем прямой URL с /api/v1
     const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-    return `${baseUrl}/api/v1`;
+    return baseUrl.endsWith('/api/v1') ? baseUrl : `${baseUrl}/api/v1`;
 };
 
 export const medWorkerAndPatientApi = createApi({

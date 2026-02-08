@@ -4,13 +4,16 @@ import axios, {
 } from "axios";
 
 // Используем прокси для всех запросов к API
+// Swagger показывает base URL: http://localhost:8080/api/v1
 const getBaseURL = () => {
   // Если указан прокси, используем его
   if (typeof window !== "undefined") {
     return "/api/proxy";
   }
-  // На сервере используем прямой URL (если нужно)
-  return process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  // На сервере используем прямой URL с /api/v1
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
+  // Убеждаемся, что baseUrl заканчивается на /api/v1
+  return baseUrl.endsWith('/api/v1') ? baseUrl : `${baseUrl}/api/v1`;
 };
 
 const axiosInstance: AxiosInstance = axios.create({

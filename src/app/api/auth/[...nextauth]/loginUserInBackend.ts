@@ -8,11 +8,13 @@ export default async function loginUserInBackend(email: string, password: string
     console.log("password", password);
 
     // В новом API endpoint /login (без префикса auth/)
-    // baseURL = /api/proxy, который проксирует на http://localhost:8080
-    // Прокси добавляет путь к базовому URL, поэтому используем /api/v1/login
+    // Swagger показывает: POST http://localhost:8080/api/v1/login
+    // baseURL = /api/proxy (на клиенте) или http://localhost:8080/api/v1 (на сервере)
+    // Прокси PROXY_TARGET = http://localhost:8080/api/v1
+    // Поэтому используем просто /login (прокси уже знает про /api/v1)
     const response = await apiInstance({
         method: "POST",
-        url: `/api/v1/login`,
+        url: `/login`,
         data: {
             email,
             password,

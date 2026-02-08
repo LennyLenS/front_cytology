@@ -6,10 +6,11 @@ export default async function refreshUserToken(token:string){
     console.log(token);
 
     // В новом API endpoint /refresh (без префикса auth/)
+    // Swagger показывает: POST http://localhost:8080/api/v1/refresh
     // refresh_token передается в теле запроса, а не в заголовке
     const response= await apiInstance({
         method:'POST',
-        url:`/api/v1/refresh`,
+        url:`/refresh`,
         data: {
             refresh_token: token
         }

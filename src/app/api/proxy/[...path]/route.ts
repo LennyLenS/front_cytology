@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 
 // Универсальный прокси для всех запросов к localhost:8080
 // Если NEXT_PUBLIC_API_BASE_URL указан, используем его, иначе localhost:8080
-const PROXY_TARGET = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_PROXY_TARGET || "http://localhost:8080";
+// Swagger показывает base URL: http://localhost:8080/api/v1
+// Поэтому PROXY_TARGET должен быть http://localhost:8080/api/v1
+const PROXY_TARGET = process.env.NEXT_PUBLIC_API_BASE_URL || process.env.NEXT_PUBLIC_PROXY_TARGET || "http://localhost:8080/api/v1";
 const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
 
 export async function GET(

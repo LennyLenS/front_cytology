@@ -1,6 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080/api/v1";
+// Swagger показывает base URL: http://localhost:8080/api/v1
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
+    ? (process.env.NEXT_PUBLIC_API_BASE_URL.endsWith('/api/v1')
+        ? process.env.NEXT_PUBLIC_API_BASE_URL
+        : `${process.env.NEXT_PUBLIC_API_BASE_URL}/api/v1`)
+    : "http://localhost:8080/api/v1";
 const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
 
 export async function GET(
