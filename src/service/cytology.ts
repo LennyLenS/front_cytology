@@ -59,7 +59,7 @@ export const cytologyApi = createApi({
         }),
         createCytology: builder.mutation<{ "image_id": number }, { payload: FormData | Partial<any> }>({
             query: (body) => ({
-                url: "/create/",
+                url: "/create",
                 method: "POST",
                 body: body.payload,
             }),

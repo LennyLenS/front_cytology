@@ -3,12 +3,21 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { authHeaders } from "@/utils/authHeaders";
 
 import { IPoint } from "@cytology/CytologyView/CytologyViewer/Viewer/interfaces/queries";
-import { ICytolgyInfoPatch, ICytology, ICytologyHistory } from "@cytology/core/types/cytology";
+import {
+    ICytolgyInfoPatch,
+    ICytology,
+    ICytologyHistory,
+    ICytologyImage,
+    ICytologyInfo,
+    DiagnosisMarking,
+    MaterialType,
+} from "@cytology/core/types/cytology";
 import {
     IGroupedSegments,
     ISegmentCreate,
     ISegmentResponse,
     ISegmentStack,
+    ISegmentDetails,
 } from "@cytology/core/types/segments";
 
 // Формируем baseURL правильно (убираем лишние слэши)
@@ -88,6 +97,79 @@ export const cytologyApi = createApi({
                 return url;
             },
             providesTags: ["Cytology"],
+            transformResponse: (response: any): ICytology => {
+                // Преобразуем ответ API в формат, ожидаемый фронтендом
+                // API возвращает структуру с опциональными полями, которые могут быть обернуты в Opt* типы
+                // При сериализации в JSON они преобразуются в обычные значения или null
+                const apiResponse = response as {
+                    original_image: {
+                        id?: number;
+                        create_date: string;
+                        delay_time?: number;
+                        viewed_flag: boolean;
+                        image?: string;
+                        file_path?: string;
+                    };
+                    info: {
+                        patient: any;
+                        patient_card: {
+                            patient?: number;
+                            med_worker?: number;
+                            diagnosis?: string;
+                        };
+                        image_group: {
+                            diagnostic_number: number;
+                            diagnostic_marking?: string;
+                            material_type?: string;
+                            calcitonin?: number;
+                            calcitonin_in_flush?: number;
+                            thyroglobulin?: number;
+                            is_last: boolean;
+                            diagnos_date: string;
+                            prev?: string;
+                            parent_prev?: string;
+                        };
+                    };
+                };
+
+                // Преобразуем original_image
+                const originalImage = apiResponse.original_image;
+                const transformedOriginalImage: ICytologyImage = {
+                    id: originalImage.id || 0,
+                    create_date: originalImage.create_date || "",
+                    delay_time: originalImage.delay_time || 0,
+                    viewed_flag: originalImage.viewed_flag || false,
+                    image: originalImage.image || "",
+                    file_path: originalImage.file_path,
+                };
+
+                // Преобразуем info
+                const imageGroup = apiResponse.info.image_group;
+                const transformedInfo: ICytologyInfo = {
+                    patient: apiResponse.info.patient,
+                    acceptance_datetime: imageGroup.diagnos_date || "",
+                    diagnosis: apiResponse.info.patient_card.diagnosis || "",
+                    patient_card_id: apiResponse.info.patient_card.patient || 0,
+                    id: 0, // ID не передается в ответе API
+                    is_last: imageGroup.is_last || false,
+                    diagnos_date: imageGroup.diagnos_date || "",
+                    details: null, // Details не передаются в ответе
+                    diagnostic_marking: (imageGroup.diagnostic_marking as DiagnosisMarking) || "П11",
+                    diagnostic_number: imageGroup.diagnostic_number || 0,
+                    material_type: (imageGroup.material_type as MaterialType) || "GS",
+                    calcitonin: imageGroup.calcitonin || 0,
+                    calcitonin_in_flush: imageGroup.calcitonin_in_flush || 0,
+                    thyroglobulin: imageGroup.thyroglobulin || 0,
+                    prev: imageGroup.prev ? (imageGroup.prev as any) : null,
+                    parent_prev: imageGroup.parent_prev ? (imageGroup.parent_prev as any) : null,
+                    original_image: transformedOriginalImage.id,
+                };
+
+                return {
+                    original_image: transformedOriginalImage,
+                    info: transformedInfo,
+                };
+            },
         }),
         getCytologySegment: builder.query<IGroupedSegments[], string>({
             query: (id) => {
@@ -102,13 +184,36 @@ export const cytologyApi = createApi({
                 response.results.reduce((acc: IGroupedSegments[], segment) => {
                     const existingGroup = acc.find((group) => group.seg_type === segment.seg_type);
                     const { data, seg_type, is_ai } = segment;
-                    const segmentsToStack: ISegmentStack[] = data.map((segmentData) => ({
-                        id: segmentData.id,
-                        seg_type,
-                        is_ai,
-                        points: segmentData.points,
-                        details: segmentData.details,
-                    }));
+                    const segmentsToStack: ISegmentStack[] = data.map((segmentData) => {
+                        // Преобразуем points из формата {id, uid, x, y} в {x, y}
+                        const points: IPoint[] = segmentData.points.map((p) => ({
+                            x: p.x,
+                            y: p.y,
+                        }));
+
+                        // Преобразуем details из строки JSON в объект, если есть
+                        let details: ISegmentDetails | undefined;
+                        if (segmentData.details) {
+                            try {
+                                // Если details - это строка JSON, парсим её
+                                const parsed = typeof segmentData.details === 'string'
+                                    ? JSON.parse(segmentData.details)
+                                    : segmentData.details;
+                                details = parsed as ISegmentDetails;
+                            } catch (e) {
+                                // Если не удалось распарсить, оставляем undefined
+                                console.warn('Failed to parse segment details:', e);
+                            }
+                        }
+
+                        return {
+                            id: segmentData.id,
+                            seg_type,
+                            is_ai,
+                            points,
+                            details,
+                        };
+                    });
 
                     if (existingGroup) {
                         existingGroup.segments.push(...segmentsToStack);
@@ -124,7 +229,7 @@ export const cytologyApi = createApi({
         }),
         addSegment: builder.mutation<void, { cytologyId: string; segment: ISegmentCreate }>({
             query: ({ cytologyId, segment }) => ({
-                url: `/segment/group/create/${cytologyId}/`,
+                url: `/segment/group/create/${cytologyId}`,
                 method: "POST",
                 body: segment,
             }),
@@ -132,7 +237,7 @@ export const cytologyApi = createApi({
         }),
         patchSegment: builder.mutation<void, { segmentId: string | number; points: IPoint[] }>({
             query: ({ segmentId, points }) => ({
-                url: `/segment/update/${segmentId}/`,
+                url: `/segment/update/${segmentId}`,
                 method: "PATCH",
                 body: { points },
             }),
@@ -140,22 +245,26 @@ export const cytologyApi = createApi({
         }),
         deleteSegment: builder.mutation<void, number>({
             query: (segmentId) => ({
-                url: `/segment/update/${segmentId}/`,
+                url: `/segment/update/${segmentId}`,
                 method: "DELETE",
             }),
             invalidatesTags: ["Segments"],
         }),
         addNewRevise: builder.mutation<{ id: string }, string>({
-            query: (pk) => ({
-                url: `/copy/`,
+            query: (id) => ({
+                url: `/copy`,
                 method: "POST",
-                body: { pk },
+                body: { id: id },
             }),
             invalidatesTags: ["Cytology"],
+            transformResponse: (response: any): { id: string } => {
+                // API возвращает { pk: uuid, id: uuid }, но фронтенд ожидает { id: string }
+                return { id: response.id || response.pk || "" };
+            },
         }),
         patchCytologyInfo: builder.mutation<void, { id: string; body: ICytolgyInfoPatch }>({
             query: (data) => ({
-                url: `/${data.id}/update/`,
+                url: `/${data.id}/update`,
                 method: "PATCH",
                 body: { ...data.body },
             }),
@@ -166,7 +275,7 @@ export const cytologyApi = createApi({
                 if (!id || id === "") {
                     throw new Error("Cytology ID is required for history query");
                 }
-                const url = `/history/${id}/`;
+                const url = `/history/${id}`;
                 if (typeof window !== "undefined" && process.env.NODE_ENV === "development") {
                     console.log("getCytologyHistory query:", { id, url, fullUrl: `${getBaseUrl()}${url}` });
                 }

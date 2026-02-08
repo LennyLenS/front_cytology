@@ -74,7 +74,8 @@ export interface ICytolgyInfoPatch {
         patient: number;
         diagnosis: string;
     };
-    details: {
+    diagnostic_number: number;
+    details?: {
         material_type: MaterialType;
         calcitonin: number;
         calcitonin_in_flush: number;
@@ -91,7 +92,7 @@ export type ICytologyHistory = IPaginated<ICytologyHistoryItem>;
 export interface ICytologyHistoryItem {
     calcitonin: number;
     calcitonin_in_flush: number;
-    details: ICytologyInfoDetails;
+    details: ICytologyInfoDetails | null;
     diagnos_date: string;
     diagnostic_marking: DiagnosisMarking;
     diagnostic_number: number;
@@ -99,8 +100,8 @@ export interface ICytologyHistoryItem {
     is_last: boolean;
     material_type: MaterialType;
     original_image: number;
-    parent_prev: number;
+    parent_prev: string | null; // UUID в API
     patient_card: number;
-    prev: number | null;
+    prev: string | null; // UUID в API
     thyroglobulin: number;
 }
