@@ -51,8 +51,13 @@ export default function EditDoctorModal() {
             doctor.medOrganization != watchedValues?.medOrganization ||
             doctor.isRemoteWorker != watchedValues?.isRemoteWorker
         ) {
+            const doctorId = localStorage.getItem("id");
+            if (!doctorId || doctorId === "null" || doctorId === "undefined") {
+                console.error("Doctor ID not found in localStorage");
+                return;
+            }
             editMedWorker({
-                id: String(localStorage.getItem("id")),
+                id: doctorId,
                 payload: {
                     // В новом API для обновления врача используются поля: fullname, org, job, description
                     fullname: `${watchedValues?.lastName || ""} ${watchedValues?.firstName || ""} ${watchedValues?.fathersName || ""}`.trim(),

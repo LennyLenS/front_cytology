@@ -112,7 +112,11 @@ export default function MethodsPatientModal({}) {
             const { id: patientId } = await addPatient({ payload: patientPayload }).unwrap();
 
             // Затем создаем карту пациента
-            const doctorId = String(localStorage.getItem("id"));
+            const doctorId = localStorage.getItem("id");
+            if (!doctorId || doctorId === "null" || doctorId === "undefined") {
+                console.error("Doctor ID not found in localStorage");
+                return;
+            }
             if (patientId && doctorId && watchedValues?.diagnosis) {
                 await addCard({
                     doctorId,
@@ -141,7 +145,11 @@ export default function MethodsPatientModal({}) {
             }
 
             // Обновляем карту пациента (диагноз)
-            const doctorId = String(localStorage.getItem("id"));
+            const doctorId = localStorage.getItem("id");
+            if (!doctorId || doctorId === "null" || doctorId === "undefined") {
+                console.error("Doctor ID not found in localStorage");
+                return;
+            }
             if (patient?.id && doctorId && watchedValues?.diagnosis !== undefined) {
                 await editCard({
                     doctorId,

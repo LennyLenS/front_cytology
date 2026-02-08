@@ -40,7 +40,9 @@ export default function UploadPhoto() {
     useEffect(() => {
         if (typeof window !== "undefined" && hasToken) {
             const id = localStorage.getItem("id");
-            setMedWorkerId(id ? String(id) : null);
+            // Проверяем что ID не null, не "null", не "undefined" и не пустая строка
+            const validId = id && id !== "null" && id !== "undefined" && id.trim() !== "" ? id : null;
+            setMedWorkerId(validId);
         }
     }, [hasToken]);
 

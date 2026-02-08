@@ -50,7 +50,15 @@ export default function Patients() {
 
     const [pageSize, setPageSize] = useState(10);
 
-    const doctorId = accessToken ? String(localStorage.getItem("id")) : null;
+    // Получаем ID врача из localStorage, проверяем что он не null и не пустая строка
+    const getDoctorId = (): string | null => {
+        if (!accessToken) return null;
+        if (typeof window === "undefined") return null;
+        const id = localStorage.getItem("id");
+        return id && id !== "null" && id !== "undefined" ? id : null;
+    };
+
+    const doctorId = getDoctorId();
 
     const {
         isLoading: isMedWorkerLoading,

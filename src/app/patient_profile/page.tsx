@@ -123,7 +123,15 @@ export default function PatientProfile() {
     });
     const [isShotsData, setIsShotsData] = useState<IShot[]>([]);
 
-    const doctorId = accessToken ? String(localStorage.getItem("id")) : null;
+    // Получаем ID врача из localStorage, проверяем что он не null и не пустая строка
+    const getDoctorId = (): string | null => {
+        if (!accessToken) return null;
+        if (typeof window === "undefined") return null;
+        const id = localStorage.getItem("id");
+        return id && id !== "null" && id !== "undefined" && id.trim() !== "" ? id : null;
+    };
+
+    const doctorId = getDoctorId();
     const patientId = params.get("id");
 
     const {
