@@ -54,14 +54,11 @@ export default function EditDoctorModal() {
             editMedWorker({
                 id: String(localStorage.getItem("id")),
                 payload: {
-                    id: Number(localStorage.getItem("id")),
-                    last_name: watchedValues?.lastName,
-                    first_name: watchedValues?.firstName,
-                    fathers_name: watchedValues?.fathersName,
-                    med_organization: watchedValues?.medOrganization,
-                    job: watchedValues?.job,
-                    is_remote_worker: watchedValues?.isRemoteWorker,
-                    expert_details: watchedValues?.expertDetails,
+                    // В новом API для обновления врача используются поля: fullname, org, job, description
+                    fullname: `${watchedValues?.lastName || ""} ${watchedValues?.firstName || ""} ${watchedValues?.fathersName || ""}`.trim(),
+                    org: watchedValues?.medOrganization || "",
+                    job: watchedValues?.job || "",
+                    description: watchedValues?.expertDetails || "",
                 },
             });
         }
