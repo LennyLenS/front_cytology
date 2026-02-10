@@ -1,0 +1,45 @@
+{
+  "name": "main-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "next": "^14.0.0",
+    "@medml/config": "*",
+    "@medml/ui": "*",
+    "@medml/store": "*",
+    "@medml/shared": "*",
+    "@medml/auth": "*",
+    "@medml/layout": "*",
+    "@medml/patients": "*",
+    "next-auth": "^4.24.11",
+    "dayjs": "^1.11.13",
+    "@annotorious/openseadragon": "^3.0.20",
+    "@annotorious/react": "^3.0.20",
+    "@ant-design/icons": "^6.1.0",
+    "@ant-design/nextjs-registry": "^1.0.1",
+    "@reduxjs/toolkit": "^2.0.0",
+    "antd": "^5.12.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-redux": "^9.0.0",
+    "axios": "^1.7.9",
+    "clsx": "^2.1.1",
+    "jwt-decode": "^4.0.0",
+    "lodash-es": "^4.17.21",
+    "react-query": "^3.39.3",
+    "swr": "^2.3.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "@types/node": "^20.0.0",
+    "@types/lodash-es": "^4.17.12",
+    "sass": "^1.83.0"
+  }
+}
