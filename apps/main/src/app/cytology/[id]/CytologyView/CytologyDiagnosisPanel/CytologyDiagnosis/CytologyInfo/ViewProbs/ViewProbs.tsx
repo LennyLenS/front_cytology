@@ -2,7 +2,7 @@ import { Empty, Table } from "antd";
 import { useContext, useEffect } from "react";
 
 import { ModalContext } from "@/contexts";
-import { BETHESDA_CATEGORIES, getHighestProbIndex } from "@cytology/core/functions/highestProb";
+import { BETHESDA_CATEGORIES, getHighestProbIndex } from "../../../../../core/functions/highestProb";
 
 import "./ViewProbs.css";
 

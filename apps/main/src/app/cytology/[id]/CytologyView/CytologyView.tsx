@@ -2,19 +2,19 @@ import React, { useEffect, useState } from "react";
 import { Col, Row } from "antd";
 import { skipToken } from "@reduxjs/toolkit/query";
 
-import { useAppDispatch, useAppSelector } from "@cytology/core/hooks";
+import { useAppDispatch, useAppSelector } from "../core/hooks";
 import {
     setCytologyId,
     setCytologyInfo,
     setEditedCytologyInfo,
     setInitSegments,
     setSegmentsStack,
-} from "@cytology/core/store";
+} from "../core/store";
 import {
     useGetCytologyInfoQuery,
     useGetCytologySegmentQuery,
-} from "@cytology/core/service/cytology";
-import { Modes } from "@/app/cytology/[id]/core/types/basic";
+} from "../core/service/cytology";
+import { Modes } from "../core/types/basic";
 
 import CytologyDiagnosisPanel from "./CytologyDiagnosisPanel/CytologyDiagnosisPanel";
 import CytologyViewer from "./CytologyViewer/CytologyViewer";

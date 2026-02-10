@@ -1,6 +1,6 @@
 import { createAppDispatchGeneric } from "@/hooks";
 
-import type { AppDispatch } from "@cytology/core/store";
+import type { AppDispatch } from "../store";
 
 const useAppDispatch = createAppDispatchGeneric<AppDispatch>();
 

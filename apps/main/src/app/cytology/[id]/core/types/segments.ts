@@ -1,4 +1,4 @@
-import { IPoint } from "@cytology/CytologyView/CytologyViewer/Viewer/interfaces/queries";
+import { IPoint } from "../../CytologyView/CytologyViewer/Viewer/interfaces/queries";
 import { IPaginated } from "./basic";
 
 export type GroupType = "CE" | "CL" | "ME";

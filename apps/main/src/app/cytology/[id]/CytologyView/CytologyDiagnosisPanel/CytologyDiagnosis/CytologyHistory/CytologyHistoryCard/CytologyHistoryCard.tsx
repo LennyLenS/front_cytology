@@ -1,7 +1,7 @@
 import { Card, Tag, Typography } from "antd";
 
-import { ICytologyHistoryItem } from "@cytology/core/types/cytology";
-import { getHighestProbIndex } from "@cytology/core/functions/highestProb";
+import { ICytologyHistoryItem } from "../../../../../core/types/cytology";
+import { getHighestProbIndex } from "../../../../../core/functions/highestProb";
 
 import { tagColors, TagsKeys, tagTexts } from "./props";
 

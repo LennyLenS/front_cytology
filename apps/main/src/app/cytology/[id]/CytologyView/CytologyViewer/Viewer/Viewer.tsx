@@ -6,8 +6,8 @@ import {
     useAnnotator,
 } from "@annotorious/react";
 
-import { Tools } from "@/app/cytology/[id]/core/types/basic";
-import { ISegmentStack } from "@cytology/core/types/segments";
+import { Tools } from "../../../core/types/basic";
+import { ISegmentStack } from "../../../../core/types/segments";
 import { IPoint } from "./interfaces/queries";
 
 import OSDViewer from "./components/OSDViewer/OSDViewer";

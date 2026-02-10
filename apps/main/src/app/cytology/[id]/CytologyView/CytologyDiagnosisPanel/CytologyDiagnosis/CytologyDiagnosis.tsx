@@ -3,11 +3,11 @@ import { Flex, Typography, Button } from "antd";
 import { EditOutlined, HistoryOutlined } from "@ant-design/icons";
 import { skipToken } from "@reduxjs/toolkit/query";
 
-import DiagnosisCard from "@cytology/common/DiagnosisCard/DiagnosisCard";
+import DiagnosisCard from "../../../common/DiagnosisCard/DiagnosisCard";
 
-import { IGroupedSegments, SegmentType } from "@cytology/core/types/segments";
-import { useGetCytologyHistoryQuery } from "@cytology/core/service/cytology";
-import { useAppSelector } from "@cytology/core/hooks";
+import { IGroupedSegments, SegmentType } from "../../../core/types/segments";
+import { useGetCytologyHistoryQuery } from "../../../core/service/cytology";
+import { useAppSelector } from "../../../core/hooks";
 import { ModalContext } from "@/contexts";
 
 import CytologyInfo from "./CytologyInfo/CytologyInfo";

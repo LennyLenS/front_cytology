@@ -1,8 +1,8 @@
 import React from "react";
 import { Flex, Typography } from "antd";
 
-import { Modals } from "@/app/cytology/[id]/core/types/basic";
-import { segmentsTranslated, SegmentType } from "@cytology/core/types/segments";
+import { Modals } from "../../core/types/basic";
+import { segmentsTranslated, SegmentType } from "../core/types/segments";
 
 import "./DiagnosisCard.css";
 

@@ -6,7 +6,7 @@ import { ModalContext } from "@/contexts";
 import {
     ICytologyInfoCellCharacteristics,
     ICytologyInfoClusterCharacteristics,
-} from "@cytology/core/types/cytology";
+} from "../../../../../core/types/cytology";
 
 import { characteristicsDict, columns, TableItem } from "./props";
 

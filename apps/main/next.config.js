@@ -1,3 +1,5 @@
+const path = require('path');
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   transpilePackages: [
@@ -9,6 +11,13 @@ const nextConfig = {
     '@medml/layout',
     '@medml/patients',
   ],
+  webpack: (config) => {
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@cytology': path.resolve(__dirname, 'src/app/cytology/[id]'),
+    };
+    return config;
+  },
 };
 
 module.exports = nextConfig;

@@ -6,6 +6,7 @@ import { store } from "../stores/store";
 import AntDesignProvider from "../utils/AntDesignProvider";
 import ReactQueryProvider from "../utils/ReactQueryProvider";
 import AuthProvider from "../utils/AuthProvider";
+import { NotificationProvider } from "../utils/NotificationProvider";
 
 export default function ProvidersClient({
     children,
@@ -19,7 +20,9 @@ export default function ProvidersClient({
             <AuthProvider session={session}>
                 <AntDesignProvider>
                     <ReactQueryProvider>
-                        {children}
+                        <NotificationProvider>
+                            {children}
+                        </NotificationProvider>
                     </ReactQueryProvider>
                 </AntDesignProvider>
             </AuthProvider>

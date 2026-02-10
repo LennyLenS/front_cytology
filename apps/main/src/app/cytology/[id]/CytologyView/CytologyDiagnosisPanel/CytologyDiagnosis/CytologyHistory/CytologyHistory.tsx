@@ -2,7 +2,7 @@ import { useContext, useEffect } from "react";
 import { Flex, Timeline } from "antd";
 
 import { ModalContext } from "@/contexts";
-import { ICytologyHistory } from "@cytology/core/types/cytology";
+import { ICytologyHistory } from "../../../../../core/types/cytology";
 
 import CytologyHistoryCard from "./CytologyHistoryCard/CytologyHistoryCard";
 

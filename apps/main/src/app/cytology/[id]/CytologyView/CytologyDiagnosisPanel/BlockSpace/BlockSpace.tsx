@@ -1,6 +1,6 @@
 import React from "react";
 
-import { useAppSelector } from "@/app/cytology/[id]/core/hooks";
+import { useAppSelector } from "../../../core/hooks";
 
 const BlockSpace: React.FC = () => {
     const height = useAppSelector((state) => state.ref.toolPanelHeight);

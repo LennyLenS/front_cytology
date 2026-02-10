@@ -4,11 +4,11 @@ import { Annotorious } from "@annotorious/react";
 import { Flex } from "antd";
 import { DisconnectOutlined } from "@ant-design/icons";
 
-import { useAppDispatch, useAppSelector } from "@cytology/core/hooks";
-import { addNewSegmentToStack, editPointSegment } from "@cytology/core/store";
+import { useAppDispatch, useAppSelector } from "../core/hooks";
+import { addNewSegmentToStack, editPointSegment } from "../core/store";
 
-import { Tools } from "@/app/cytology/[id]/core/types/basic";
-import { ISegmentStack } from "@cytology/core/types/segments";
+import { Tools } from "../../core/types/basic";
+import { ISegmentStack } from "../core/types/segments";
 import { IPoint } from "./Viewer/interfaces/queries";
 
 import EditPanel from "./EditPanel/EditPanel";

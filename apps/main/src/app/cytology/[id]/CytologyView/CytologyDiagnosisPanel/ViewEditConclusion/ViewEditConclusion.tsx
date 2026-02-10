@@ -3,10 +3,10 @@ import { Form, Input, Select } from "antd";
 import { useForm } from "antd/es/form/Form";
 
 import { ModalContext } from "@/contexts";
-import { useAppDispatch } from "@cytology/core/hooks";
-import { setEditedCytologyInfo } from "@cytology/core/store";
+import { useAppDispatch } from "../core/hooks";
+import { setEditedCytologyInfo } from "../core/store";
 
-import { ICytolgyInfoPatch, MaterialType } from "@cytology/core/types/cytology";
+import { ICytolgyInfoPatch, MaterialType } from "../core/types/cytology";
 
 import { localizationOptions } from "./props";
 

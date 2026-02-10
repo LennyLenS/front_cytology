@@ -3,9 +3,9 @@ import { useForm } from "antd/es/form/Form";
 import { useContext, useEffect } from "react";
 
 import { ModalContext } from "@/contexts";
-import { useAppDispatch } from "@cytology/core/hooks";
-import { addNewGroupedType } from "@cytology/core/store";
-import { segmentsTranslated, SegmentType } from "@cytology/core/types/segments";
+import { useAppDispatch } from "../../../../core/hooks";
+import { addNewGroupedType } from "../../../../core/store";
+import { segmentsTranslated, SegmentType } from "../../../../core/types/segments";
 
 type AddSegmentForm = {
     type: SegmentType;

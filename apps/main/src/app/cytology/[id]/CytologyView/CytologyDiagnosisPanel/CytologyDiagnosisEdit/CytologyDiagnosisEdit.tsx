@@ -3,7 +3,7 @@ import { Flex, Typography, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { useRouter } from "next/navigation";
 
-import { useAppSelector } from "@cytology/core/hooks";
+import { useAppSelector } from "../../../core/hooks";
 import { ModalContext } from "@/contexts";
 import {
     useAddNewReviseMutation,
@@ -12,21 +12,21 @@ import {
     useLazyGetCytologySegmentQuery,
     usePatchCytologyInfoMutation,
     usePatchSegmentMutation,
-} from "@cytology/core/service/cytology";
-import { prepareCytologyInfo } from "@cytology/core/functions/prepareCytologyInfo";
+} from "../../../core/service/cytology";
+import { prepareCytologyInfo } from "../../../core/functions/prepareCytologyInfo";
 
 import {
     IGroupedSegments,
     ISegmentStack,
     SegmentType,
     segmentTypes,
-} from "@cytology/core/types/segments";
+} from "../../../core/types/segments";
 
-import DiagnosisCard from "@cytology/common/DiagnosisCard/DiagnosisCard";
+import DiagnosisCard from "../../../common/DiagnosisCard/DiagnosisCard";
 
-import BlockSpace from "../BlockSpace/BlockSpace";
+import BlockSpace from "../../BlockSpace/BlockSpace";
 import AddSegment from "./AddSegment/AddSegment";
-import ViewEditConclusion from "../ViewEditConclusion/ViewEditConclusion";
+import ViewEditConclusion from "../../ViewEditConclusion/ViewEditConclusion";
 
 import "./CytologyDiagnosisEdit.css";
 

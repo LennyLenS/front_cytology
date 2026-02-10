@@ -4,9 +4,9 @@ import { DisconnectOutlined } from "@ant-design/icons";
 
 import { ModalContext } from "@/contexts";
 
-import { useAppSelector } from "@cytology/core/hooks";
-import { prepareCytologyInfo } from "@cytology/core/functions/prepareCytologyInfo";
-import { getHighestProbIndex } from "@cytology/core/functions/highestProb";
+import { useAppSelector } from "../../../../core/hooks";
+import { prepareCytologyInfo } from "../../../../core/functions/prepareCytologyInfo";
+import { getHighestProbIndex } from "../../../../core/functions/highestProb";
 
 import ViewEditConclusion from "../../ViewEditConclusion/ViewEditConclusion";
 import ViewProbs from "./ViewProbs/ViewProbs";

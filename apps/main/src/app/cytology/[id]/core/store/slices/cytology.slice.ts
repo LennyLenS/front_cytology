@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-import { ICytolgyInfoPatch, ICytologyInfo } from "@cytology/core/types/cytology";
+import { ICytolgyInfoPatch, ICytologyInfo } from "../../types/cytology";
 
 interface uziState {
     cytologyId: string;

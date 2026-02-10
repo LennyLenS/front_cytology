@@ -1,8 +1,8 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import uuid from "react-uuid";
 
-import { IGroupedSegments, ISegmentStack, SegmentType } from "@cytology/core/types/segments";
-import { IPoint } from "@cytology/CytologyView/CytologyViewer/Viewer/interfaces/queries";
+import { IGroupedSegments, ISegmentStack, SegmentType } from "../../types/segments";
+import { IPoint } from "../../../CytologyView/CytologyViewer/Viewer/interfaces/queries";
 
 interface segmentState {
     currentSegment: SegmentType | null;

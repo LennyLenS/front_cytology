@@ -2,14 +2,14 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 import { authHeaders } from "@/utils/authHeaders";
 
-import { IPoint } from "@cytology/CytologyView/CytologyViewer/Viewer/interfaces/queries";
-import { ICytolgyInfoPatch, ICytology, ICytologyHistory } from "@cytology/core/types/cytology";
+import { IPoint } from "../../CytologyView/CytologyViewer/Viewer/interfaces/queries";
+import { ICytolgyInfoPatch, ICytology, ICytologyHistory } from "../types/cytology";
 import {
     IGroupedSegments,
     ISegmentCreate,
     ISegmentResponse,
     ISegmentStack,
-} from "@cytology/core/types/segments";
+} from "../types/segments";
 
 // Формируем baseURL правильно (убираем лишние слэши)
 // Используем прокси через Next.js API routes для обхода CORS

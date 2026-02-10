@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { PopupProps } from "@annotorious/react";
 import { Card, Flex, Typography } from "antd";
 
-import { ISegmentDetails } from "@cytology/core/types/segments";
-import { useAppDispatch, useAppSelector } from "@cytology/core/hooks";
-import { markAsDeleted, markAsUnDeleted } from "@cytology/core/store";
+import { ISegmentDetails } from "../../../../../../core/types/segments";
+import { useAppDispatch, useAppSelector } from "../../../../../../core/hooks";
+import { markAsDeleted, markAsUnDeleted } from "../../../../../../core/store";
 
 import { CommentPopupHeader } from "./CommentPopupHeader/CommentPopupHeader";
 
