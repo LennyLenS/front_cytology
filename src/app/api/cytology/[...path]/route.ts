@@ -37,14 +37,18 @@ async function handleRequest(
     method: string
 ) {
     try {
-        const path = params.path.join("/");
+        // params.path может быть пустым массивом для /api/cytology
+        const path = params.path && params.path.length > 0 ? params.path.join("/") : "";
         const url = new URL(request.url);
         const searchParams = url.searchParams.toString();
         const queryString = searchParams ? `?${searchParams}` : "";
 
         // Формируем правильный URL к API
         const cleanBaseUrl = API_BASE_URL.replace(/\/+$/, "");
-        const apiUrl = `${cleanBaseUrl}/cytology/${path}${queryString}`;
+        // Если path пустой, создаем новую цитологию (POST /cytology/)
+        const apiUrl = path
+            ? `${cleanBaseUrl}/cytology/${path}${queryString}`
+            : `${cleanBaseUrl}/cytology${queryString}`;
 
         // Логирование в development
         if (process.env.NODE_ENV === "development") {

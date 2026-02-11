@@ -302,16 +302,22 @@ export default function UploadDiagnosticPhotoModal({
                                     if (
                                         handleSend &&
                                         isFileImg &&
-                                        watchedPatientId &&
+                                        isValidForm &&
                                         watchedDeviceId &&
+                                        (watchedPatientId || patients.length == 1) &&
                                         (isCytology || watchedProjection)
                                     ) {
-                                        handleSend(
-                                            watchedProjection,
-                                            watchedPatientId,
-                                            watchedDeviceId,
-                                            isFileImg
-                                        )
+                                        const patientId = watchedPatientId || (patients.length == 1 ? patients[0].id : undefined)
+                                        if (patientId) {
+                                            handleSend(
+                                                watchedProjection,
+                                                patientId,
+                                                watchedDeviceId,
+                                                isFileImg
+                                            )
+                                        } else {
+                                            message.warning('Выберите пациента')
+                                        }
                                     } else {
                                         message.warning('Заполните все поля и загрузите файл')
                                     }
@@ -331,16 +337,22 @@ export default function UploadDiagnosticPhotoModal({
                                     if (
                                         handleSend &&
                                         fileImg &&
-                                        watchedPatientId &&
+                                        isValidForm &&
                                         watchedDeviceId &&
+                                        (watchedPatientId || patients.length == 1) &&
                                         (isCytology || watchedProjection)
                                     ) {
-                                        handleSend(
-                                            watchedProjection,
-                                            watchedPatientId,
-                                            watchedDeviceId,
-                                            fileImg
-                                        )
+                                        const patientId = watchedPatientId || (patients.length == 1 ? patients[0].id : undefined)
+                                        if (patientId) {
+                                            handleSend(
+                                                watchedProjection,
+                                                patientId,
+                                                watchedDeviceId,
+                                                fileImg
+                                            )
+                                        } else {
+                                            message.warning('Выберите пациента')
+                                        }
                                     } else {
                                         message.warning('Заполните все поля')
                                     }

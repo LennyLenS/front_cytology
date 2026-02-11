@@ -40,13 +40,25 @@ export async function uploadCytology(
         formData.append('file', body.fileImg)
         formData.append('external_id', body.patientId)
         formData.append('device_id', body.deviceId)
-        const response = await axiosInstance.post('/cytology', formData, {
+
+        // Используем прокси /api/cytology/[...path]
+        // Для создания новой цитологии путь должен быть пустым, поэтому используем /api/cytology
+        // Next.js catch-all route [...path] обработает это как пустой массив
+        const response = await fetch('/api/cytology', {
+            method: 'POST',
             headers: {
-                'Content-Type': 'multipart/form-data;',
-                Authorization: `Bearer ${token}`,
+                Authorization: token ? `Bearer ${token}` : '',
             },
+            body: formData,
         })
-        return response.data
+
+        if (!response.ok) {
+            const errorText = await response.text()
+            throw new Error(`HTTP error! status: ${response.status}, text: ${errorText}`)
+        }
+
+        const data = await response.json()
+        return data
     } catch (error: any) {
         throw error
     }
