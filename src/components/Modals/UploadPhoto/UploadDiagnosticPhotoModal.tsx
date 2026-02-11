@@ -106,18 +106,28 @@ export default function UploadDiagnosticPhotoModal({
     useEffect(() => {
         console.log(patientList)
         if (!isNil(patientList)) {
-            const patients: PatientDataType[] = patientList.map(
+            const patientsFromApi: PatientDataType[] = patientList.map(
                 (item: PatientDataResponseType, index: number) => ({
                     key: index,
                     id: item.id,
                     fullName: item.fullname,
                 })
             )
-            console.log('patients ', patients)
+            console.log('patients ', patientsFromApi)
 
-            setPatientData(patients)
+            setPatientData(patientsFromApi)
         }
     }, [patientList, isLoading])
+
+    // Автоматически устанавливаем пациента, если он один и для цитологии
+    useEffect(() => {
+        if (isCytology && patients.length === 1 && !watchedPatientId) {
+            const singlePatient = patients[0]
+            if (singlePatient.id) {
+                form.setFieldsValue({ patient: singlePatient.id })
+            }
+        }
+    }, [isCytology, patients, watchedPatientId, form])
 
     const onChangeCheckbox: CheckboxProps['onChange'] = (e) => {
         setChecked(e.target.checked)
@@ -226,18 +236,28 @@ export default function UploadDiagnosticPhotoModal({
                             label="Пациент"
                             layout="vertical"
                             name="patient"
-                            required={true}
+                            required={patients.length > 1}
                         >
                             <Select
-                                options={patientData.map(
-                                    (option: PatientDataType) => {
-                                        return {
-                                            value: option.id,
-                                            label: option.fullName,
-                                        }
-                                    }
-                                )}
-                                placeholder="Выберите пациента"
+                                options={
+                                    (patients.length > 0 && (isCytology || patients.length === 1))
+                                        ? patients
+                                              .filter((option: PatientDataType) => option.id || option.key)
+                                              .map((option: PatientDataType) => ({
+                                                  value: (option.id || option.key) as React.Key,
+                                                  label: option.fullName,
+                                              }))
+                                        : patientData
+                                              .filter((option: PatientDataType) => option.id)
+                                              .map((option: PatientDataType) => ({
+                                                  value: option.id as React.Key,
+                                                  label: option.fullName,
+                                              }))
+                                }
+                                placeholder={
+                                    patients.length === 1 ? "Пациент" : "Выберите пациента"
+                                }
+                                disabled={patients.length === 1 && isCytology}
                             />
                         </Item>
 

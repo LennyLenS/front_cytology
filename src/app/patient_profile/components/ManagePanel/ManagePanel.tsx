@@ -15,7 +15,7 @@ export default function ManagePanel({
     showModalAddDiagnostic,
     showModalDeletePatient,
 }: any) {
-    const [disabledUpload, setDisabledUpload] = useState<boolean>(true)
+    const [disabledUpload, setDisabledUpload] = useState<boolean>(false)
     const [{ data: subscriptionStatus, refetch: refetchSubscriptionStatus }] =
         useAPI<SubscriptionStatus>({
             APIController: 'subscriptions',
@@ -24,7 +24,10 @@ export default function ManagePanel({
         })
 
     useEffect(() => {
-        setDisabledUpload(!subscriptionStatus?.has_active_subscription)
+        // Для цитологии не требуется активная подписка, поэтому кнопка всегда активна
+        // Если нужно вернуть проверку подписки, раскомментируйте следующую строку:
+        // setDisabledUpload(!subscriptionStatus?.has_active_subscription)
+        setDisabledUpload(false)
     }, [subscriptionStatus])
     return (
         <Flex justify="space-between" className="manage_panel">

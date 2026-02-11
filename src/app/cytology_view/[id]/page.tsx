@@ -1,7 +1,7 @@
 "use client";
 import React, { useMemo } from "react";
 import { Provider } from "react-redux";
-import { useParams } from "next/navigation";
+import { useParams, notFound } from "next/navigation";
 
 import { useLoading } from "@/contexts/LoadingContext";
 import { useMessages } from "@/contexts/MessageContext";
@@ -15,21 +15,26 @@ export default function Page() {
     const { start, stop } = useLoading();
     const { setError } = useMessages();
     const params = useParams();
-    const cytologyId = params.id as string;
+    const cytologyId = params?.id as string;
+
+    // Если ID отсутствует, показываем 404
+    if (!cytologyId) {
+        notFound();
+    }
 
     const loadingMethods = useMemo(
         () => ({
             addLoading: start,
             removeLoading: stop,
         }),
-        []
+        [start, stop]
     );
 
     const errorMethods = useMemo(
         () => ({
             setError,
         }),
-        []
+        [setError]
     );
 
     const store = useMemo(
