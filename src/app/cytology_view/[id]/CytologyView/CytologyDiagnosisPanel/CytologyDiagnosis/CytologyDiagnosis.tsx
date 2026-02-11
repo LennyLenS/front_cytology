@@ -1,0 +1,93 @@
+import React, { useCallback, useContext, useEffect, useRef } from "react";
+import { Flex, Typography, Button } from "antd";
+import { EditOutlined, HistoryOutlined } from "@ant-design/icons";
+import { skipToken } from "@reduxjs/toolkit/query";
+
+import DiagnosisCard from "../../../common/DiagnosisCard/DiagnosisCard";
+
+import { IGroupedSegments, SegmentType } from "../../../core/types/segments";
+import { useGetCytologyHistoryQuery } from "../../../core/service/cytology";
+import { useAppSelector } from "../../../core/hooks";
+import { ModalContext } from "@/contexts";
+
+import CytologyInfo from "./CytologyInfo/CytologyInfo";
+
+import "./CytologyDiagnosis.css";
+import CytologyHistory from "./CytologyHistory/CytologyHistory";
+
+const { Text } = Typography;
+
+interface ICytologyDiagnosisProps {
+    segments: IGroupedSegments[];
+    openEdit: () => void;
+    onClickCard: (newValue: SegmentType) => void;
+    currentSegment: SegmentType | null;
+}
+
+const CytologyDiagnosis: React.FC<ICytologyDiagnosisProps> = ({
+    segments,
+    openEdit,
+    onClickCard,
+    currentSegment,
+}) => {
+    const { open } = useContext(ModalContext);
+
+    const cytologyId = useAppSelector((state) => state.cytology.cytologyId);
+    const acessToken = useAppSelector((state) => state.auth.accessToken);
+
+    // Проверяем наличие токена: из .env или из Redux store
+    const hasToken = !!acessToken || !!process.env.NEXT_PUBLIC_API_TOKEN;
+
+    // Проверяем, что cytologyId не пустой и есть токен
+    const canFetchHistory = hasToken && cytologyId && cytologyId !== "";
+
+    const {
+        data: historyData,
+        isLoading: isLoadingHistory,
+        isError: isErrorHistory,
+        error: errorHistory
+    } = useGetCytologyHistoryQuery(canFetchHistory ? cytologyId : skipToken);
+    const historyDataRef = useRef(historyData);
+
+    useEffect(() => {
+        historyDataRef.current = historyData;
+    }, [historyData]);
+
+    const handleOpenHistory = useCallback(() => {
+        if (historyDataRef.current) {
+            open({
+                content: <CytologyHistory history={historyDataRef.current} />,
+            });
+        }
+    }, [historyDataRef, open]);
+
+    return (
+        <Flex vertical className="cytology-diagnosis-wrapper">
+            <CytologyInfo />
+            <Flex vertical gap={5} className="cytology-diagnosis-cards-wrapper">
+                {segments.map((segment) => (
+                    <DiagnosisCard
+                        segmentType={segment.seg_type}
+                        isActive={currentSegment === segment.seg_type}
+                        onClick={() => onClickCard(segment.seg_type)}
+                        key={segment.seg_type}
+                    />
+                ))}
+            </Flex>
+            <Button className="cytology-diagnosis-edit" type="default" onClick={handleOpenHistory}>
+                <Flex gap={10} align="center">
+                    <Text className="text-inherit">История изменений</Text>
+                    <HistoryOutlined />
+                </Flex>
+            </Button>
+            <Button className="cytology-diagnosis-edit" type="primary" onClick={openEdit}>
+                <Flex gap={10} align="center">
+                    <Text className="text-inherit">Редактировать</Text>
+                    <EditOutlined />
+                </Flex>
+            </Button>
+        </Flex>
+    );
+};
+
+export default CytologyDiagnosis;
