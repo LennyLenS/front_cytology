@@ -10,7 +10,7 @@ import { jwtDecode } from 'jwt-decode'
 
 interface jwtPayloadAuth {
     exp: number
-    id: string
+    uuid: string
     role: 'doctor' | 'patient'
 }
 const ADDED_MINUTE_TOKEN_EXPIRY = 2
@@ -25,7 +25,7 @@ async function loginUser(username: string, password: string) {
 
         const jwtDecoded = jwtDecode<jwtPayloadAuth>(access_token)
         return {
-            id: jwtDecoded.id,
+            id: jwtDecoded.uuid,
             name: 'null',
             email: username,
             data: {
@@ -34,7 +34,7 @@ async function loginUser(username: string, password: string) {
                 accessTokenExpiry: dayjs()
                     .add(ADDED_MINUTE_TOKEN_EXPIRY, 'minute')
                     .toDate(),
-                id: jwtDecoded.id,
+                id: jwtDecoded.uuid,
             },
         }
     } catch {

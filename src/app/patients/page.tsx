@@ -50,22 +50,23 @@ export default function Patients() {
 
     const [pageSize, setPageSize] = useState(10);
 
+    const userId = data?.id || localStorage.getItem("id");
+
     const {
         isLoading: isMedWorkerLoading,
         data: medWorkerData,
         error: errorMedWorker,
-    } = useGetMedWorkerQuery(accessToken ? String(localStorage.getItem("id")) : skipToken);
+    } = useGetMedWorkerQuery(accessToken && userId ? String(userId) : skipToken);
     useRTKEffects({ isLoading: isMedWorkerLoading, error: errorMedWorker }, "Get medworker");
 
     useEffect(() => {
         if (data?.accessToken) {
             dispatch(setToken(data.accessToken));
-            localStorage.setItem(
-                "id",
-                jwtDecode<{ user_id: number }>(data.accessToken).user_id.toString()
-            );
+            if (data?.id) {
+                localStorage.setItem("id", String(data.id));
+            }
         }
-    }, [data]);
+    }, [data, dispatch]);
 
     useEffect(() => {
         if (medWorkerData) {
