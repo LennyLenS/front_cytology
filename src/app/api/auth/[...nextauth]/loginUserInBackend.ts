@@ -1,22 +1,25 @@
-import apiInstance from "@/utils/apiInstance";
+import apiInstance from '@/utils/apiInstance'
 
-export default async function loginUserInBackend(email: string, password: string) {
-    console.log("loginUserInBackend");
+export default async function loginUserInBackend(
+    email: string,
+    password: string
+) {
+    console.log('loginUserInBackend')
 
-    console.log("email", email);
+    console.log('email', email)
 
-    console.log("password", password);
+    console.log('password', password)
 
     const response = await apiInstance({
-        method: "POST",
-        url: `auth/login/`,
+        method: 'POST',
+        url: `login`,
         data: {
             email,
             password,
         },
-    });
+    })
 
-    const { access, refresh } = response.data;
-    console.log(response.data);
-    return { access, refresh };
+    const { access_token, refresh_token } = response.data
+    console.log(response.data)
+    return { access_token, refresh_token }
 }

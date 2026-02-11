@@ -45,8 +45,8 @@ export default function LoginForm() {
         (values: LoginFormData) => {
             const { email, password } = values;
 
-            signIn("credentials", {
-                username: email,
+            signIn('credentials', {
+                email: email,
                 password: password,
                 redirect: false,
             })

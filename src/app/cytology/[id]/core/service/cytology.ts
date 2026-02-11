@@ -12,22 +12,14 @@ import {
 } from "@cytology/core/types/segments";
 
 // Формируем baseURL правильно (убираем лишние слэши)
-// Используем прокси через Next.js API routes для обхода CORS
 const getBaseUrl = () => {
-    // Если используем прокси, запросы идут через /api/cytology
-    // Иначе используем прямой URL к API
-    const useProxy = process.env.NEXT_PUBLIC_USE_API_PROXY !== "false";
-
-    if (useProxy && typeof window !== "undefined") {
-        // Используем относительный путь через Next.js API proxy
-        return "/api/cytology/";
-    }
-
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://109.73.201.164:8000/api/v3";
+    const baseUrl =
+        process.env.NEXT_PUBLIC_API_BASE_URL ||
+        'http://194.226.121.145:8080/api/v1/'
     // Убираем trailing slash если есть
-    const cleanBaseUrl = baseUrl.replace(/\/+$/, "");
-    return `${cleanBaseUrl}/cytology/`;
-};
+    const cleanBaseUrl = baseUrl.replace(/\/+$/, '')
+    return `${cleanBaseUrl}/cytology/`
+}
 
 // Обертка для baseQuery с логированием
 const baseQueryWithLogging = fetchBaseQuery({

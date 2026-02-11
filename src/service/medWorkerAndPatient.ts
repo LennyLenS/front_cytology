@@ -3,21 +3,13 @@ import { prepareHeaders } from "./headers";
 import { IApiGetMedWorker, IApiResponseGetShots } from "../types/api";
 import { IMedWorkerRes } from "../types/medWorker";
 
-// Используем прокси для всех запросов к API
-const getBaseUrl = () => {
-    // Всегда используем прокси на клиенте для обхода CORS
-    if (typeof window !== "undefined") {
-        return "/api/proxy";
-    }
-    // На сервере используем прямой URL (если нужно)
-    return process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
-};
-
 export const medWorkerAndPatientApi = createApi({
-    reducerPath: "medWorkerAndPatientApi",
-    tagTypes: ["MedWorker", "Patient"],
+    reducerPath: 'medWorkerAndPatientApi',
+    tagTypes: ['MedWorker', 'Patient'],
     baseQuery: fetchBaseQuery({
-        baseUrl: getBaseUrl(),
+        baseUrl:
+            process.env.NEXT_PUBLIC_API_BASE_URL ||
+            'http://194.226.121.145:8080/api/v1/',
         prepareHeaders,
     }),
     endpoints: (builder) => ({
