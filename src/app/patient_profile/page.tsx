@@ -10,7 +10,7 @@ import Page from '@/components/Page/Page'
 import Flex from 'antd/es/flex'
 import Table from 'antd/es/table'
 import Link from 'next/link'
-import { uploadUzi } from '@/app/upload_photo/utils/requests'
+import { uploadUzi, uploadCytology } from '@/app/upload_photo/utils/requests'
 import React, { useCallback, useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import type { TableProps } from 'antd'
@@ -25,6 +25,7 @@ import {
 } from './interfaces'
 import { DoctorDataType } from '@/app/patients/interfaces'
 import { useSession } from 'next-auth/react'
+import { Session } from 'next-auth'
 import { SubscriptionStatus } from '../patients/interfaces/ISubscription'
 
 interface DiagnosticDataType {
@@ -43,7 +44,8 @@ interface DiagnosticResponseType {
 
 export default function PatientProfile() {
     const [error, setError] = useState<string | null>(null)
-    const { data: session } = useSession()
+    const { data: session }: { data: (Session & { accessToken?: string; id?: string }) | null } =
+        useSession()
     const idDoctor = (session as any)?.id ?? ''
     const [dataSource, setDataSource] = useState<DiagnosticDataType[]>([])
     const router = useRouter()
@@ -163,7 +165,7 @@ export default function PatientProfile() {
     }, [diagnosticData])
 
     const handleSend = async (
-        projection: string,
+        projection: string | undefined,
         patientId: string,
         deviceId: string,
         fileImg: File
@@ -171,28 +173,32 @@ export default function PatientProfile() {
         console.log('handleSend', projection, patientId, deviceId)
         if (
             fileImg != null &&
-            projection != 'undefined' &&
             patientId != 'undefined' &&
-            deviceId != 'undefined'
+            patientId != null &&
+            deviceId != 'undefined' &&
+            deviceId != null
         ) {
-            uploadUzi({ fileImg, projection, patientId, deviceId })
-                .then((response) => {
-                    if (!response.ok) {
-                        return response.text().then((errorText) => {
-                            throw new Error(
-                                `HTTP error! status: ${response.status}, text: ${errorText}`
-                            )
-                        })
-                    }
-                    return response.text()
-                })
+            // Для цитологии не нужна проекция, используем uploadCytology
+            const isCytologyUpload = !projection || projection === 'undefined'
+            const uploadPromise = isCytologyUpload
+                ? uploadCytology({ fileImg, patientId, deviceId }, session?.accessToken)
+                : uploadUzi({ fileImg, projection, patientId, deviceId }, session?.accessToken)
+
+            uploadPromise
                 .then((data) => {
                     console.log('Response:', data)
-                    router.push('/diagnostic_is_running')
+                    if (isCytologyUpload && data.id) {
+                        // Для цитологии перенаправляем на страницу просмотра
+                        router.push(`/cytology_view/${data.id}`)
+                    } else {
+                        router.push('/diagnostic_is_running')
+                    }
                 })
                 .catch((error) => {
                     setError(error.message || 'An unexpected error occurred')
                 })
+        } else {
+            setError('Заполните все поля и загрузите файл')
         }
     }
 
@@ -379,8 +385,8 @@ export default function PatientProfile() {
         {
             dataIndex: 'open',
             key: 'open',
-            render: () => (
-                <Link href="/cytology_view" className="table_button">
+            render: (_: never, record: DiagnosticDataType) => (
+                <Link href={`/cytology_view/${record.id || record.key}`} className="table_button">
                     Открыть
                 </Link>
             ),
@@ -446,6 +452,7 @@ export default function PatientProfile() {
                 fileImg={null}
                 diagnosticTextDescription="Для сохранения результатов диагностики их необходимо добавить в карту пациента"
                 handleSend={handleSend}
+                isCytology={true}
             />
 
             <MethodsPatientModal

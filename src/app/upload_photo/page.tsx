@@ -12,7 +12,7 @@ import Button from '@/components/Universal/Button/Button'
 import ConditionalRender from '@/components/Universal/ConditionalRender/ConditionalRender'
 import UploadDiagnosticPhotoModal from '@/components/Modals/UploadPhoto/UploadDiagnosticPhotoModal'
 import type { UploadProps } from 'antd'
-import { uploadUzi } from './utils/requests'
+import { uploadUzi, uploadCytology } from './utils/requests'
 import useAPI from '@/utils/useAPI/useAPI'
 import { isNil } from 'lodash-es'
 import {
@@ -104,28 +104,30 @@ export default function UploadPhoto() {
         deviceId: string,
         fileImg: File
     ) => {
-        //Сюда добавить if как сделано в patient_profile
-        uploadUzi(
-            { fileImg, projection, patientId, deviceId },
-            session?.accessToken
-        )
-            .then((response) => {
-                if (!response.ok) {
-                    return response.text().then((errorText: any) => {
-                        throw new Error(
-                            `HTTP error! status: ${response.status}, text: ${errorText}`
-                        )
-                    })
-                }
-                return response.text()
-            })
-            .then((data) => {
-                console.log('Response:', data)
-                router.push('/diagnostic_is_running')
-            })
-            .catch((error: any) => {
-                console.log(error)
-            })
+        if (
+            fileImg != null &&
+            projection != 'undefined' &&
+            projection != null &&
+            patientId != 'undefined' &&
+            patientId != null &&
+            deviceId != 'undefined' &&
+            deviceId != null
+        ) {
+            uploadUzi(
+                { fileImg, projection, patientId, deviceId },
+                session?.accessToken
+            )
+                .then((data) => {
+                    console.log('Response:', data)
+                    router.push('/diagnostic_is_running')
+                })
+                .catch((error: any) => {
+                    console.error('Upload error:', error)
+                    message.error('Ошибка при загрузке файла: ' + (error.message || 'Неизвестная ошибка'))
+                })
+        } else {
+            message.warning('Заполните все поля и загрузите файл')
+        }
     }
     const [, addDiagnostic] = useAPI<any>({
         APIController: 'uzi',

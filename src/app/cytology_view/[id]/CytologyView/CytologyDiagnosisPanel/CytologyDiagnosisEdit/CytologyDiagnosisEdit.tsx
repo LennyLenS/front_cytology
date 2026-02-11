@@ -144,7 +144,7 @@ const CytologyDiagnosisEdit: React.FC<CytologyDiagnosisEditProps> = ({
         }
 
         closeEdit();
-        router.push(`/cytology/${newReviseId}`);
+        router.push(`/cytology_view/${newReviseId}`);
     }, [cytologyEditedInfoRef]);
 
     const handleAddSegmentType = useCallback(async () => {

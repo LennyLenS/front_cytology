@@ -49,7 +49,9 @@ interface UploadDiagnosticPhotoModalProps {
     error: string | null
     handleSend?: any
     fileImg?: File | null | undefined
+    isCytology?: boolean
 }
+
 import { useSession } from 'next-auth/react'
 
 export default function UploadDiagnosticPhotoModal({
@@ -64,6 +66,7 @@ export default function UploadDiagnosticPhotoModal({
     error,
     fileImg,
     handleSend,
+    isCytology = false,
 }: UploadDiagnosticPhotoModalProps) {
     const [form] = useForm()
     const { data: session } = useSession()
@@ -81,10 +84,10 @@ export default function UploadDiagnosticPhotoModal({
         return (
             watchedDeviceId != undefined &&
             (watchedPatientId != undefined || patients.length == 1) &&
-            watchedProjection &&
+            (isCytology || watchedProjection) &&
             (isFileImg != null || !withUploadPhotoArea)
         )
-    }, [watchedProjection, watchedPatientId, watchedDeviceId])
+    }, [watchedProjection, watchedPatientId, watchedDeviceId, isCytology, isFileImg, withUploadPhotoArea, patients.length])
 
     const [patientData, setPatientData] = useState<PatientDataType[]>([])
 
@@ -199,22 +202,24 @@ export default function UploadDiagnosticPhotoModal({
                             />
                         </Item>
 
-                        <Spacer space={40} />
-                        <Item
-                            style={{ fontSize: '18px' }}
-                            label="Проекция"
-                            layout="vertical"
-                            name="projection"
-                            required={true}
-                        >
-                            <Select
-                                options={[
-                                    { value: 'lateral', label: 'Продольная' },
-                                    { value: 'cross', label: 'Поперечная' },
-                                ]}
-                                placeholder="Выберите проекцию"
-                            />
-                        </Item>
+                        <ConditionalRender condition={!isCytology}>
+                            <Spacer space={40} />
+                            <Item
+                                style={{ fontSize: '18px' }}
+                                label="Проекция"
+                                layout="vertical"
+                                name="projection"
+                                required={!isCytology}
+                            >
+                                <Select
+                                    options={[
+                                        { value: 'lateral', label: 'Продольная' },
+                                        { value: 'cross', label: 'Поперечная' },
+                                    ]}
+                                    placeholder="Выберите проекцию"
+                                />
+                            </Item>
+                        </ConditionalRender>
                         <Spacer space={40} />
                         <Item
                             style={{ fontSize: '18px' }}
@@ -291,38 +296,59 @@ export default function UploadDiagnosticPhotoModal({
                         />
                         <ConditionalRender condition={withUploadPhotoArea}>
                             <Button
-                                onClick={() =>
-                                    handleSend(
-                                        watchedProjection,
-                                        // patients[0].key,
-                                        watchedPatientId,
-                                        watchedDeviceId,
-                                        isFileImg
-                                    )
-                                }
+                                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    if (
+                                        handleSend &&
+                                        isFileImg &&
+                                        watchedPatientId &&
+                                        watchedDeviceId &&
+                                        (isCytology || watchedProjection)
+                                    ) {
+                                        handleSend(
+                                            watchedProjection,
+                                            watchedPatientId,
+                                            watchedDeviceId,
+                                            isFileImg
+                                        )
+                                    } else {
+                                        message.warning('Заполните все поля и загрузите файл')
+                                    }
+                                }}
                                 width={20}
                                 title="Начать"
-                                htmlType="submit"
                                 type="primary"
+                                disabled={!isValidForm || !isFileImg}
                             />
                         </ConditionalRender>
 
                         <ConditionalRender condition={!withUploadPhotoArea}>
                             <Button
-                                onClick={() =>
-                                    handleSend(
-                                        watchedProjection,
-                                        watchedPatientId,
-                                        watchedDeviceId,
-                                        isFileImg
-                                        // fileImg
-                                    )
-                                }
+                                onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+                                    e.preventDefault()
+                                    e.stopPropagation()
+                                    if (
+                                        handleSend &&
+                                        fileImg &&
+                                        watchedPatientId &&
+                                        watchedDeviceId &&
+                                        (isCytology || watchedProjection)
+                                    ) {
+                                        handleSend(
+                                            watchedProjection,
+                                            watchedPatientId,
+                                            watchedDeviceId,
+                                            fileImg
+                                        )
+                                    } else {
+                                        message.warning('Заполните все поля')
+                                    }
+                                }}
                                 width={20}
                                 title="Начать"
-                                htmlType="submit"
                                 type="primary"
-                                // disabled={!isValidForm}
+                                disabled={!isValidForm || !fileImg}
                             />
                         </ConditionalRender>
                     </Flex>

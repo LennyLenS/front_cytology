@@ -14,7 +14,7 @@ const CytologyHistoryCard: React.FC<CytologyHistoryCardProps> = (props) => {
         props.prev === null ? TagsKeys.created : props.is_last ? TagsKeys.last : TagsKeys.updated;
 
     return (
-        <Link href={`/cytology/${props.id}`} key={props.id}>
+        <Link href={`/cytology_view/${props.id}`} key={props.id}>
             <Card
                 title={new Date(props.diagnos_date).toLocaleDateString()}
                 extra={<Tag color={tagColors[tagKey]}>{tagTexts[tagKey]}</Tag>}

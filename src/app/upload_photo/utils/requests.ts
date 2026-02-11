@@ -1,4 +1,3 @@
-import { NextResponse } from 'next/server'
 import axiosInstance from '@/utils/apiInstance'
 
 export async function uploadUzi(
@@ -22,14 +21,33 @@ export async function uploadUzi(
                 Authorization: `Bearer ${token}`,
             },
         })
-        const data = response.data
-        return NextResponse.json(data)
+        return response.data
     } catch (error: any) {
-        return NextResponse.json(
-            {
-                error: 'An error occurred while fetching patients.',
+        throw error
+    }
+}
+
+export async function uploadCytology(
+    body: {
+        fileImg: File
+        patientId: string
+        deviceId: string
+    },
+    token?: string | undefined | null
+) {
+    try {
+        const formData = new FormData()
+        formData.append('file', body.fileImg)
+        formData.append('external_id', body.patientId)
+        formData.append('device_id', body.deviceId)
+        const response = await axiosInstance.post('/cytology', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data;',
+                Authorization: `Bearer ${token}`,
             },
-            { status: error.status }
-        )
+        })
+        return response.data
+    } catch (error: any) {
+        throw error
     }
 }
