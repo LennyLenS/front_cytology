@@ -136,13 +136,26 @@ export default function UploadPhotoModal() {
                 const patientCardId = idCard || "1";
                 formData.append("patient_card", String(patientCardId));
 
+                console.log("📤 Sending request to create cytology, file size:", (isFileImg.size / 1024 / 1024).toFixed(2), "MB");
+
                 const { image_id } = await createCytology({ payload: formData }).unwrap();
 
                 dispatch(handleOk());
                 router.push(`/diagnostic_is_running/${image_id}`);
-            } catch (error) {
+            } catch (error: any) {
                 console.error("Upload failed:", error);
-                message.error("Ошибка загрузки файла");
+
+                // Более детальное сообщение об ошибке
+                let errorMessage = "Ошибка загрузки файла";
+                if (error?.status === 'FETCH_ERROR') {
+                    errorMessage = "Не удалось подключиться к серверу. Проверьте подключение к интернету и доступность сервера.";
+                } else if (error?.status) {
+                    errorMessage = `Ошибка сервера: ${error.status}`;
+                } else if (error?.message) {
+                    errorMessage = error.message;
+                }
+
+                message.error(errorMessage);
             }
         }
     };

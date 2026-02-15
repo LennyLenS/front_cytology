@@ -1,6 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     reactStrictMode: false,
+    // Увеличиваем лимит размера тела запроса для API routes (до 10GB)
+    experimental: {
+        serverActions: {
+            bodySizeLimit: '10gb',
+        },
+    },
 };
 
 export default nextConfig;

@@ -3,6 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || "http://109.73.201.164:8000/api/v3";
 const API_TOKEN = process.env.NEXT_PUBLIC_API_TOKEN;
 
+// Увеличиваем таймаут для больших файлов (максимум 300 секунд = 5 минут)
+export const maxDuration = 300;
+
+// Используем nodejs runtime для больших файлов
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
+
 export async function GET(
     request: NextRequest,
     { params }: { params: { path: string[] } }
@@ -73,13 +80,22 @@ async function handleRequest(
                 try {
                     body = await request.formData();
                     if (process.env.NODE_ENV === "development") {
-                        console.log("🔵 FormData parsed successfully, entries:", Array.from(body.entries()).map(([key]) => key));
+                        const entries = Array.from(body.entries());
+                        const fileEntries = entries.filter(([key]) => key === 'image');
+                        const fileSize = fileEntries.length > 0 && fileEntries[0][1] instanceof File
+                            ? (fileEntries[0][1] as File).size
+                            : 0;
+                        console.log("🔵 FormData parsed successfully, entries:", entries.map(([key]) => key));
+                        if (fileSize > 0) {
+                            console.log("🔵 File size:", (fileSize / 1024 / 1024).toFixed(2), "MB");
+                        }
                     }
                 } catch (error) {
-                    if (process.env.NODE_ENV === "development") {
-                        console.error("❌ Failed to parse FormData:", error);
-                    }
-                    body = null;
+                    console.error("❌ Failed to parse FormData:", error);
+                    return NextResponse.json(
+                        { error: "Failed to parse FormData", details: error instanceof Error ? error.message : String(error) },
+                        { status: 400 }
+                    );
                 }
             } else {
                 // Иначе парсим как JSON
@@ -123,7 +139,20 @@ async function handleRequest(
             }
         }
 
-        const response = await fetch(apiUrl, fetchOptions);
+        let response: Response;
+        try {
+            response = await fetch(apiUrl, fetchOptions);
+        } catch (fetchError) {
+            console.error("❌ Fetch Error:", fetchError);
+            return NextResponse.json(
+                {
+                    error: "Failed to fetch",
+                    details: fetchError instanceof Error ? fetchError.message : String(fetchError),
+                    message: "Не удалось подключиться к серверу API. Проверьте доступность сервера и сетевые настройки."
+                },
+                { status: 503 }
+            );
+        }
 
         // Логирование в development
         if (process.env.NODE_ENV === "development") {
