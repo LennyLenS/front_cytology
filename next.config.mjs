@@ -7,6 +7,8 @@ const nextConfig = {
             bodySizeLimit: '10gb',
         },
     },
+    // Включаем standalone output для Docker
+    output: 'standalone',
 };
 
 export default nextConfig;
