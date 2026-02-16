@@ -20,6 +20,18 @@ COPY . .
 # Отключаем telemetry Next.js для ускорения сборки
 ENV NEXT_TELEMETRY_DISABLED 1
 
+# Принимаем build arguments для переменных окружения
+# Эти переменные нужны во время сборки для встраивания в клиентский код
+ARG NEXT_PUBLIC_API_TOKEN
+ARG NEXT_PUBLIC_API_BASE_URL
+ARG NEXT_PUBLIC_DZI_API_BASE_URL
+
+# Устанавливаем переменные окружения для сборки
+# NEXT_PUBLIC_* переменные встраиваются в клиентский код во время сборки
+ENV NEXT_PUBLIC_API_TOKEN=$NEXT_PUBLIC_API_TOKEN
+ENV NEXT_PUBLIC_API_BASE_URL=$NEXT_PUBLIC_API_BASE_URL
+ENV NEXT_PUBLIC_DZI_API_BASE_URL=$NEXT_PUBLIC_DZI_API_BASE_URL
+
 # Собираем приложение
 RUN npm run build
 

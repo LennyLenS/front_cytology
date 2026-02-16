@@ -20,6 +20,7 @@ import { localizations, markings } from "../../types/constants";
 import { useAppSelector } from "@/stores/hook";
 import { skipToken } from "@reduxjs/toolkit/query";
 import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
 import { setToken } from "../../stores/authSlice";
 import { jwtDecode } from "jwt-decode";
 
@@ -36,25 +37,45 @@ export default function UploadPhoto() {
     const [medWorkerId, setMedWorkerId] = useState<string | null>(null);
     const token = useAppSelector((state) => state.auth.accessToken);
     const { data: session, status } = useSession();
+    const typedSession = session as (Session & { accessToken?: string }) | null;
 
     // Загружаем токен из сессии в Redux store
     useEffect(() => {
-        if (session?.accessToken) {
-            dispatch(setToken(session.accessToken));
+        if (typedSession?.accessToken) {
+            dispatch(setToken(typedSession.accessToken));
             // Сохраняем ID пользователя в localStorage
             if (typeof window !== "undefined") {
                 try {
-                    const decoded = jwtDecode<{ user_id: number }>(session.accessToken);
+                    const decoded = jwtDecode<{ user_id: number }>(typedSession.accessToken);
                     localStorage.setItem("id", decoded.user_id.toString());
                 } catch (error) {
                     console.error("Error decoding token:", error);
                 }
             }
         }
-    }, [session, dispatch]);
+    }, [typedSession, dispatch]);
 
-    // Используем только токен из Redux store (не проверяем env переменные на клиенте)
-    const hasToken = !!token;
+    // Инициализируем токен из env переменных, если его нет в store
+    useEffect(() => {
+        // Если токена нет в store, но есть в env (встроен при сборке), используем его
+        if (!token && typeof window !== "undefined" && process.env.NEXT_PUBLIC_API_TOKEN) {
+            const envToken = process.env.NEXT_PUBLIC_API_TOKEN;
+            dispatch(setToken(envToken));
+            // Пытаемся извлечь ID из токена
+            try {
+                const decoded = jwtDecode<{ user_id?: number; id?: string }>(envToken);
+                const userId = decoded.user_id || decoded.id;
+                if (userId) {
+                    localStorage.setItem("id", String(userId));
+                }
+            } catch (error) {
+                console.error("Error decoding env token:", error);
+            }
+        }
+    }, [token, dispatch]);
+
+    // Проверяем наличие токена: из Redux store или из env (встроен при сборке)
+    const hasToken = !!token || !!process.env.NEXT_PUBLIC_API_TOKEN;
 
     // Безопасное получение ID из localStorage (только на клиенте)
     useEffect(() => {

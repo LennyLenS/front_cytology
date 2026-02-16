@@ -5,6 +5,13 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        # Передаем переменные окружения на этап сборки
+        # чтобы они встроились в клиентский код
+        # Можно использовать ${VAR} для переменных из .env файла или указать напрямую
+        NEXT_PUBLIC_API_TOKEN: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzEyNzI0MjgsImlkIjoiYTk0YjM1OWUtYTMwMC00ODAwLTkyZDQtNzJlNGQ3MzYwNzkzIiwicm9sZSI6ImRvY3RvciJ9.I721kGvS4OClvheAAqJhy9_Pxzva36Kdzi1VCkas5DE0kZYksLZwbb-GwPhNAAuK13ykjWKK6aOl9fOGbFq3RJnnqfSWDHkpUuwXQbZpGn6RZ1tYJoUfGIcAAmEjphczT86dvcGDiybKlqjHDVDphOT7PApBop_jtEj84YEuNQJA8ft9OC8TooLVj9xOVbbS-FszkbuP4DOHZSsPK4KZjLw9_ERvDi79bn4HXju-BhQvmT39PfybpmjvWgQ1rlPPYwRigdzwCHXTn_zRAtXj17B0WaVGRpEMSXabISvbLOu7kz-SKzE0b4Yb33MmHqbVVgOywaFAcwrQmXqwr4P7LA"
+        NEXT_PUBLIC_API_BASE_URL: "http://localhost:8080/api/v1"
+        NEXT_PUBLIC_DZI_API_BASE_URL: "http://localhost:8080/tiler/dzi"
     container_name: front_cytology
     ports:
       - "3001:3001"
@@ -17,7 +24,7 @@ services:
       - NEXTAUTH_SECRET=5LySis2+/3T8AqFYP5DcsGpH5fT4GlNtwBtbc9wyOpA
       - NEXT_PUBLIC_API_BASE_URL=http://localhost:8080/api/v1
       - NEXT_PUBLIC_DZI_API_BASE_URL=http://localhost:8080/tiler/dzi
-      - NEXT_PUBLIC_API_TOKEN="eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzEyNzI0MjgsImlkIjoiYTk0YjM1OWUtYTMwMC00ODAwLTkyZDQtNzJlNGQ3MzYwNzkzIiwicm9sZSI6ImRvY3RvciJ9.I721kGvS4OClvheAAqJhy9_Pxzva36Kdzi1VCkas5DE0kZYksLZwbb-GwPhNAAuK13ykjWKK6aOl9fOGbFq3RJnnqfSWDHkpUuwXQbZpGn6RZ1tYJoUfGIcAAmEjphczT86dvcGDiybKlqjHDVDphOT7PApBop_jtEj84YEuNQJA8ft9OC8TooLVj9xOVbbS-FszkbuP4DOHZSsPK4KZjLw9_ERvDi79bn4HXju-BhQvmT39PfybpmjvWgQ1rlPPYwRigdzwCHXTn_zRAtXj17B0WaVGRpEMSXabISvbLOu7kz-SKzE0b4Yb33MmHqbVVgOywaFAcwrQmXqwr4P7LA"
+      - NEXT_PUBLIC_API_TOKEN=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE3NzEyNzI0MjgsImlkIjoiYTk0YjM1OWUtYTMwMC00ODAwLTkyZDQtNzJlNGQ3MzYwNzkzIiwicm9sZSI6ImRvY3RvciJ9.I721kGvS4OClvheAAqJhy9_Pxzva36Kdzi1VCkas5DE0kZYksLZwbb-GwPhNAAuK13ykjWKK6aOl9fOGbFq3RJnnqfSWDHkpUuwXQbZpGn6RZ1tYJoUfGIcAAmEjphczT86dvcGDiybKlqjHDVDphOT7PApBop_jtEj84YEuNQJA8ft9OC8TooLVj9xOVbbS-FszkbuP4DOHZSsPK4KZjLw9_ERvDi79bn4HXju-BhQvmT39PfybpmjvWgQ1rlPPYwRigdzwCHXTn_zRAtXj17B0WaVGRpEMSXabISvbLOu7kz-SKzE0b4Yb33MmHqbVVgOywaFAcwrQmXqwr4P7LA
     volumes:
       # Монтируем директорию для загрузок (опционально, для персистентности)
       - ./uploads:/app/uploads
