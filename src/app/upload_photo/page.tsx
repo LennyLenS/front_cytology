@@ -10,7 +10,7 @@ import Spacer from "@/components/Universal/Spacer/Spacer";
 import Button from "@/components/Universal/Button/Button";
 import MethodsPatientModal from "@/components/Modals/MethodsPatientsModal/methodsPatientModal";
 import UploadPhotoModal from "./components/UploadPhotoModal/uploadPhotoModal";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { handleShow as uploadPhotoCardHandleShow } from "../../stores/uploadPhotoSlice";
 import { handleShow as methodsPatientModalHandleShow } from "../../stores/methodsPatientModalSlice";
 import { useGetMedWorkerQuery } from "../../service/medWorkerAndPatient";
@@ -19,6 +19,9 @@ import { IPatient } from "../../types/patient";
 import { localizations, markings } from "../../types/constants";
 import { useAppSelector } from "@/stores/hook";
 import { skipToken } from "@reduxjs/toolkit/query";
+import { useSession } from "next-auth/react";
+import { setToken } from "../../stores/authSlice";
+import { jwtDecode } from "jwt-decode";
 
 const { useWatch, useForm, Item } = Form;
 
@@ -32,9 +35,26 @@ export default function UploadPhoto() {
     const [isPatientData, setIsPatientData] = useState<IPatient[]>([]);
     const [medWorkerId, setMedWorkerId] = useState<string | null>(null);
     const token = useAppSelector((state) => state.auth.accessToken);
+    const { data: session, status } = useSession();
 
-    // Проверяем наличие токена: из .env или из Redux store
-    const hasToken = !!token || !!process.env.NEXT_PUBLIC_API_TOKEN;
+    // Загружаем токен из сессии в Redux store
+    useEffect(() => {
+        if (session?.accessToken) {
+            dispatch(setToken(session.accessToken));
+            // Сохраняем ID пользователя в localStorage
+            if (typeof window !== "undefined") {
+                try {
+                    const decoded = jwtDecode<{ user_id: number }>(session.accessToken);
+                    localStorage.setItem("id", decoded.user_id.toString());
+                } catch (error) {
+                    console.error("Error decoding token:", error);
+                }
+            }
+        }
+    }, [session, dispatch]);
+
+    // Используем только токен из Redux store (не проверяем env переменные на клиенте)
+    const hasToken = !!token;
 
     // Безопасное получение ID из localStorage (только на клиенте)
     useEffect(() => {
@@ -84,12 +104,17 @@ export default function UploadPhoto() {
         watchedValues?.calcInSense;
         // idCard больше не обязателен
 
+    // Показываем спиннер только пока загружается сессия
+    const isLoading = status === "loading";
+
     return (
         <>
             <Page className="upload-photo-form">
                 <Spacer space={50} />
                 <Flex justify="center">
-                    {hasToken ? (
+                    {isLoading ? (
+                        <Spin size="large" />
+                    ) : hasToken ? (
                         <Flex vertical className="flex">
                             <Text className="title">Новый пунктат</Text>
 
@@ -252,7 +277,9 @@ export default function UploadPhoto() {
                             />
                         </Flex>
                     ) : (
-                        <Spin size="large" />
+                        <Flex vertical align="center" gap={20}>
+                            <Text>Необходима авторизация для доступа к этой странице</Text>
+                        </Flex>
                     )}
                 </Flex>
             </Page>
